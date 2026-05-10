@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>🌊 Da Nang มีจริงแล้ว °.🐚⋆🌺˖°🫧</title>
+<style>
+  html{font-size:16px}
+  body{margin:0;padding:0;-webkit-text-size-adjust:100%;font-family:'Outfit',sans-serif}
+  *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+  input[type="time"]{-webkit-appearance:none;font-size:inherit}
+</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+try {
+  const app = initializeApp({
+    apiKey: "AIzaSyCrwwMUYC-Zq8SvOmm_vn1WrhsKG0zFXRs",
+    authDomain: "da-nang-c5fd4.firebaseapp.com",
+    databaseURL: "https://da-nang-c5fd4-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "da-nang-c5fd4",
+    storageBucket: "da-nang-c5fd4.firebasestorage.app",
+    messagingSenderId: "1078037025946",
+    appId: "1:1078037025946:web:7d01319020b5a4994c7b23"
+  });
+  const db = getDatabase(app);
+  window._fbDb = db;
+  window._fbRef = ref;
+  window._fbSet = set;
+  window._fbOnValue = onValue;
+  window._fbReady = true;
+  console.log("Firebase OK!");
+} catch(e) { console.warn("Firebase error:", e); window._fbReady = false; }
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useEffect, useRef } = React;
+
+const ZL = { HC:"🏙️ City", ST:"🏖️ Beach", NHS:"🌊 South", HA:"🏮 Hội An" };
+const NEAR = { HC:["ST","NHS"], ST:["HC","NHS"], NHS:["ST","HC"], HA:["NHS"] };
+const CATS = {
+  cafe:{ l:"☕ คาเฟ่", c:"#d4a373", i:"☕", bg:"linear-gradient(135deg,#d4a373,#e6c9a8)" },
+  food:{ l:"🍽️ อาหาร", c:"#fb8500", i:"🍽️", bg:"linear-gradient(135deg,#fb8500,#fca44a)" },
+  shopping:{ l:"🛍️ ช้อปปิ้ง", c:"#e9c46a", i:"🛍️", bg:"linear-gradient(135deg,#e9c46a,#f0d98c)" },
+  activity:{ l:"🧩 กิจกรรม", c:"#00b4d8", i:"🧩", bg:"linear-gradient(135deg,#00b4d8,#48cae4)" },
+  nightlife:{ l:"🌙 กลางคืน", c:"#7209b7", i:"🌙", bg:"linear-gradient(135deg,#7209b7,#a855f7)" },
+};
+
+const P = {
+  cafe_dom:{t:"Đốm Café",d:"Retro มีแมว+หมา 7:00-19:00 (ปิดจันทร์)",cat:"cafe",z:"HC",addr:"22 Lê Quý Đôn",lat:16.0596,lng:108.2178,pay:"💵/💳",bud:"30-45k₫(~50฿)",rat:"4.9⭐",img:"🐱"},
+  cafe_light:{t:"Lighthouse",d:"Industrial Best Flat White! 7:30-22:00",cat:"cafe",z:"ST",addr:"12 Dương Đình Nghệ",lat:16.0636,lng:108.2459,pay:"💳/💵",bud:"50-80k₫(~90฿)",rat:"4.5⭐",img:"☕"},
+  cafe_tan:{t:"tan.",d:"โมเดิร์น-คลาสสิก กระจกใหญ่ สวนเขตร้อน",cat:"cafe",z:"HC",addr:"10 Nguyễn Thiện Thuật",lat:16.0621,lng:108.2177,pay:"💳/💵",bud:"40-70k₫(~75฿)",rat:"4.6⭐",img:"🌿"},
+  cafe_ala:{t:"Àla Cafe",d:"Specialty Roastery 7:30-17:30 (สาขา Hội An)",cat:"cafe",z:"HC",addr:"K113/27 Nguyễn Chí Thanh",lat:16.0575,lng:108.2138,pay:"💳/💵",bud:"50-130k₫(~130฿)",rat:"4.8⭐",img:"🏆"},
+  cafe_xliii:{t:"XLIII Coffee",d:"Premium Specialty ระดับ Connoisseur",cat:"cafe",z:"NHS",addr:"124 Yên Khê 1",lat:16.0528,lng:108.2301,pay:"💳",bud:"70-200k₫(~190฿)",rat:"4.7⭐",img:"🎯"},
+  cafe_nam:{t:"NAM House",d:"บ้านเวียดนาม90s Egg/Salt Coffee",cat:"cafe",z:"HC",addr:"15/1 Lê Hồng Phong",lat:16.0588,lng:108.2095,pay:"💵",bud:"25-50k₫(~50฿)",rat:"4.5⭐",img:"🏚️"},
+  food_banhxeo:{t:"Bánh Xèo Bà Dưỡng",d:"บั๋นแซวตำนาน! แป้งกรอบ ไส้กุ้ง-หมู",cat:"food",z:"HC",addr:"280/23 Hoàng Diệu",lat:16.0576,lng:108.2136,ft:"🇻🇳Crepes",pay:"💵เท่านั้น",bud:"50-80k₫(~90฿)",rat:"4.3⭐",img:"🥞"},
+  food_bepcuon:{t:"BepCuon",d:"Michelin Selected! ม้วนผัก กุ้งบอเทอร์",cat:"food",z:"ST",addr:"31-33 Trần Bạch Đằng",lat:16.0608,lng:108.2466,ft:"🌿Rolls",pay:"💳/💵",bud:"100-200k₫(~200฿)",rat:"4.5⭐🏅",img:"🌯"},
+  food_moc:{t:"Hải sản Mộc quán",d:"Michelin! เลือกจากแท้งค์ แกะให้",cat:"food",z:"ST",addr:"26 Tô Hiến Thành",lat:16.061,lng:108.2445,ft:"🦞Seafood",pay:"💳/💵",bud:"300-500k₫(~560฿)",rat:"4.6⭐🏅",img:"🦞"},
+  food_trihang:{t:"Hải Sản Trí Hằng",d:"ซีฟู้ดท้องถิ่น ซอสจิ้มบั๋นหมี่!",cat:"food",z:"ST",addr:"84-86 Cao Bá Quát",lat:16.0645,lng:108.2392,ft:"🦀Local",pay:"💵/💳",bud:"200-400k₫(~420฿)",rat:"4.4⭐",img:"🦀"},
+  food_banhmi:{t:"Bánh mì Maia",d:"Street food ริมทาง Maia Beach Bar",cat:"food",z:"NHS",addr:"284 Võ Nguyên Giáp",lat:16.043,lng:108.241,ft:"🥖Bánh mì",pay:"💵เท่านั้น",bud:"20-30k₫(~35฿)",rat:"4.2⭐",img:"🥖"},
+  food_phuhong:{t:"Quán Phú Hồng",d:"อาหารท้องถิ่น Da Nang",cat:"food",z:"HC",addr:"Da Nang",lat:16.058,lng:108.215,ft:"🥢Local",pay:"💵",bud:"80-150k₫(~160฿)",rat:"4.3⭐",img:"🥢"},
+  food_pizza:{t:"Pizza 4P's",d:"Japanese-Italian Burrata วิวแม่น้ำ",cat:"food",z:"HC",addr:"74 Bạch Đằng",lat:16.0621,lng:108.224,ft:"🍕Italian",pay:"💳/💵",bud:"200-400k₫(~420฿)",rat:"4.5⭐",img:"🍕"},
+  food_madamelan:{t:"Madame Lan",d:"เวียดนามริมแม่น้ำ เมนูเยอะ",cat:"food",z:"HC",addr:"4 Bạch Đằng",lat:16.0617,lng:108.2237,ft:"🍲Viet",pay:"💳/💵",bud:"150-300k₫(~315฿)",rat:"4.3⭐",img:"🍲"},
+  food_miquang:{t:"Mì Quảng 1A",d:"หมี่กวางอร่อยสุด! Da Nang แท้",cat:"food",z:"HC",addr:"1 Hải Phòng",lat:16.0598,lng:108.2175,ft:"🍜Local",pay:"💵เท่านั้น",bud:"35-60k₫(~65฿)",rat:"4.4⭐",img:"🍜"},
+  shop_phan:{t:"Phan Châu Trinh+Vintage",d:"Shopping Street+TTA/BINTAGE",cat:"shopping",z:"HC",addr:"Phan Châu Trinh",lat:16.0595,lng:108.2155,pay:"💵/💳บางร้าน",bud:"ตามชิ้น",rat:"4.3⭐",img:"👗"},
+  shop_hana:{t:"Hana 34 Jewelry",d:"เครื่องประดับ Vintage น่ารัก",cat:"shopping",z:"ST",addr:"Hana 34",lat:16.063,lng:108.24,pay:"💵/💳",bud:"ตามชิ้น",rat:"4.7⭐",img:"💍"},
+  shop_tta:{t:"TTA/BINTAGE",d:"เสื้อผ้า Vintage & Thrift",cat:"shopping",z:"HC",addr:"Da Nang",lat:16.059,lng:108.216,pay:"💵/💳",bud:"ตามชิ้น",rat:"4.5⭐",img:"👚"},
+  shop_han:{t:"Chợ Hàn",d:"ตลาดกลางเมือง ของฝาก ต่อราคาได้!",cat:"shopping",z:"HC",addr:"119 Trần Phú",lat:16.0618,lng:108.2222,pay:"💵เท่านั้น",bud:"ตามชิ้น",rat:"4.1⭐",img:"🏪"},
+  act_temple:{t:"Chùa Linh Ứng",d:"พระพุทธรูป67m วิวทะเล",cat:"activity",z:"NHS",addr:"Ngũ Hành Sơn",lat:16.0302,lng:108.2636,pay:"🆓ฟรี",bud:"ฟรี",rat:"4.6⭐",img:"🙏"},
+  act_ice:{t:"Recharged Ice Bath",d:"Ice Bath+Sauna+Steam ใช้ทั้งวัน",cat:"activity",z:"ST",addr:"15 Mỹ Khê 6",lat:16.0589,lng:108.2458,pay:"💳/💵",bud:"~700k₫(~980฿)",rat:"4.8⭐",img:"🧊"},
+  act_spa:{t:"Babylon Spa",d:"Massage+Shampoo ใกล้ Mỹ Khê",cat:"activity",z:"ST",addr:"30 Hà Bổng",lat:16.0595,lng:108.246,pay:"💳/💵/Klook",bud:"200-500k₫(~490฿)",rat:"4.7⭐",img:"💆"},
+  act_beach:{t:"My Khe Beach",d:"เดินชิลริมหาด Sunset",cat:"activity",z:"ST",addr:"My Khe",lat:16.058,lng:108.248,pay:"🆓",bud:"ฟรี",rat:"4.7⭐",img:"🏖️"},
+  act_kala:{t:"Kalà Kalà",d:"Free Entry! สระ DJ 8AM-2AM",cat:"activity",z:"NHS",addr:"51 Võ Nguyên Giáp",lat:16.0465,lng:108.2415,pay:"💳/💵",bud:"200-500k₫(~490฿)",rat:"4.3⭐",img:"🎵"},
+  act_hoian:{t:"Hội An",d:"~40น. UNESCO โคมไฟ tailor",cat:"activity",z:"HA",addr:"Hội An ~30km",lat:15.8801,lng:108.338,opt:true,pay:"Grab150k/เข้า120k₫",bud:"500k-1M₫(~1k฿)",rat:"4.8⭐",img:"🏮"},
+  act_marble:{t:"Marble Mountains",d:"ภูเขาหินอ่อน ถ้ำ วิวpanorama",cat:"activity",z:"NHS",addr:"Ngũ Hành Sơn",lat:16.003,lng:108.263,pay:"เข้า40k+ลิฟท์15k₫",bud:"55-100k₫(~100฿)",rat:"4.5⭐",img:"🏔️"},
+  act_dragon:{t:"Dragon Fire Show",d:"Sat-Sun 21:00 ฟรี! มังกรพ่นไฟ",cat:"activity",z:"HC",addr:"Dragon Bridge",lat:16.0611,lng:108.2277,pay:"🆓",bud:"ฟรี",rat:"4.6⭐",img:"🐉"},
+  night_sontra:{t:"Son Tra Street Food",d:"ถนนคนเดิน BBQ ทะเล",cat:"nightlife",z:"ST",addr:"Son Tra",lat:16.065,lng:108.24,pay:"💵เท่านั้น",bud:"100-200k₫(~210฿)",rat:"4.3⭐",img:"🍢"},
+  night_buffalo:{t:"Buffalo Beer",d:"ร้านดื่มกลางคืน สนุก",cat:"nightlife",z:"ST",addr:"Buffalo Beer",lat:16.062,lng:108.244,pay:"💵/💳",bud:"100-250k₫(~245฿)",rat:"4.2⭐",img:"🍺"},
+  night_sky36:{t:"Sky36 Rooftop",d:"สูงสุดDa Nang วิว360° DJ",cat:"nightlife",z:"HC",addr:"36 Bạch Đằng",lat:16.0615,lng:108.2245,pay:"💳",bud:"200-500k₫(~490฿)",rat:"4.4⭐",img:"🌃"},
+  // HOTEL / REST
+  rest_lahome:{t:"🏨 กลับ Lahome พักผ่อน",d:"กลับโรงแรมพัก อาบน้ำ เปลี่ยนชุด ชาร์จแบต หรืองีบ — ใกล้หาด My Khe 4 นาทีเดิน",cat:"activity",z:"ST",addr:"Lahome, Phước Mỹ, Sơn Trà",lat:16.06,lng:108.246,pay:"—",bud:"ฟรี (ที่พัก)",rat:"4.5⭐",img:"🏨"},
+  // BAKERIES (อยู่ในหมวดคาเฟ่)
+  cafe_marou:{t:"Maison Marou",d:"Chocolate+Bakery สุดฟิน! ช็อกโกแลตเวียดนามแท้ ครัวซองค์ เค้ก Cacao drink",cat:"cafe",z:"HC",addr:"155 Trần Phú, Hải Châu",lat:16.0612,lng:108.2208,pay:"💳/💵",bud:"60-120k₫(~120฿)",rat:"4.6⭐",img:"🍫"},
+  cafe_wonder:{t:"Wonderlust",d:"Café+Bakery+Souvenir Shop! Salt Coffee ดัง ขนมปังโฮมเมด ของฝากน่ารัก",cat:"cafe",z:"ST",addr:"36 An Thượng 4, Ngũ Hành Sơn",lat:16.0520,lng:108.2420,pay:"💳/💵",bud:"40-80k₫(~80฿)",rat:"4.5⭐",img:"🧁"},
+  cafe_cong:{t:"Cộng Cà Phê",d:"เชน Retro Communist-themed ชื่อดัง! Coconut Coffee ต้องลอง วิวแม่น้ำ Hàn",cat:"cafe",z:"HC",addr:"96 Bạch Đằng, Hải Châu",lat:16.0620,lng:108.2242,pay:"💳/💵",bud:"35-55k₫(~55฿)",rat:"4.4⭐",img:"⭐"},
+  cafe_dreamer:{t:"Dreamer Café",d:"สวนลับ Rustic garden สไตล์ Camper Bar — Beer+Cider+Coffee โรแมนติก",cat:"cafe",z:"ST",addr:"230 Nguyễn Công Trứ, Sơn Trà",lat:16.0640,lng:108.2380,pay:"💵/💳",bud:"35-60k₫(~60฿)",rat:"4.6⭐",img:"🌿"},
+  // MORE ACTIVITIES
+  act_sontramarina:{t:"Son Tra Marina",d:"มินิ Santorini สีขาว-ฟ้า วิวเรือ+ทะเล ร้านกาแฟ+ค็อกเทล",cat:"activity",z:"ST",addr:"Lot 12 Võ Nguyên Giáp, Sơn Trà",lat:16.0650,lng:108.2470,pay:"💳/💵",bud:"80-200k₫(~180฿)",rat:"4.3⭐",img:"⛵"},
+  act_lovebridge:{t:"Love Lock Bridge",d:"สะพานกุญแจรัก ริมแม่น้ำ Hàn ถ่ายรูปสวย เดินเล่นช่วงเย็น",cat:"activity",z:"HC",addr:"Trần Hưng Đạo, Sơn Trà",lat:16.0630,lng:108.2285,pay:"🆓",bud:"ฟรี",rat:"4.3⭐",img:"🔐"},
+  // MORE SHOPPING
+  food_comga:{t:"Cơm Gà Bà Buội",d:"ข้าวไก่ Da Nang สูตรดั้งเดิม! ข้าวขมิ้น ไก่ฉีก น้ำจิ้มเด็ด",cat:"food",z:"HC",addr:"22 Thái Phiên",lat:16.0595,lng:108.2148,ft:"🍗Cơm Gà",pay:"💵เท่านั้น",bud:"40-60k₫(~60฿)",rat:"4.5⭐",img:"🍗"},
+  shop_anthuong:{t:"An Thượng Fashion District",d:"ย่านแฟชั่นริมหาด! มี Boutique + Beachwear + Handcraft ร้านเยอะมาก 👫ชาย+หญิง",cat:"shopping",z:"NHS",addr:"An Thượng, Ngũ Hành Sơn",lat:16.0520,lng:108.2420,pay:"💵/💳บางร้าน",bud:"100k-500k₫(~140-700฿)",rat:"4.4⭐",img:"🏖️"},
+  shop_salavi:{t:"Salavi (Korean Fashion)",d:"แฟชั่นเกาหลี-ญี่ปุ่น 20+ ปี! เสื้อ กางเกง เดรส ราคาดี 👩สไตล์น่ารัก เกาหลี 59-300k₫",cat:"shopping",z:"HC",addr:"46 Chi Lăng, Hải Châu",lat:16.0605,lng:108.2195,pay:"💵/💳",bud:"59-300k₫(~80-420฿)",rat:"5.0⭐",img:"🇰🇷"},
+  shop_bovintage:{t:"Bò Vintage",d:"Vintage ชาย+หญิง! เสื้อผ้ามือสอง Japan/Korea คุณภาพดี มีเซลบ่อย 👫Unisex",cat:"shopping",z:"HC",addr:"Hải Châu, Da Nang",lat:16.0585,lng:108.2140,pay:"💵",bud:"50-200k₫(~70-280฿)",rat:"4.5⭐",img:"👔"},
+  shop_gocnho:{t:"Góc Nhỏ Vintage",d:"Vintage Japan/Korea ผ้าบาง ใส่สบาย สไตล์ Sweet+Feminine 👩หญิง",cat:"shopping",z:"HC",addr:"143/18 Nguyễn Chí Thanh",lat:16.0575,lng:108.2135,pay:"💵",bud:"80-250k₫(~110-350฿)",rat:"4.6⭐",img:"🌸"},
+  shop_outstanda:{t:"Outstanda Handcraft",d:"เครื่องประดับ+ของฝาก Handmade! ต่างหู Polymer Clay สมุด ถุงผ้า 👩หญิง",cat:"shopping",z:"NHS",addr:"An Thượng, Ngũ Hành Sơn",lat:16.0522,lng:108.2418,pay:"💵",bud:"100-130k₫(~140-180฿)",rat:"4.7⭐",img:"🎨"},
+  shop_rap:{t:"RẬP (Local Designer)",d:"แบรนด์เวียดนามดีไซน์สวย Elegant+Minimal+ดูดี ผ้าคุณภาพ 👩หญิง",cat:"shopping",z:"HC",addr:"116 Lê Duẩn, Hải Châu",lat:16.0590,lng:108.2110,pay:"💳/💵",bud:"300k-2M₫(~420-2.8k฿)",rat:"4.5⭐",img:"✂️"},
+  // MORE NIGHTLIFE (ชิลๆ ไม่ใช่ผับ)
+  night_bachdang:{t:"Bạch Đằng Walking Street",d:"ถนนคนเดินริมแม่น้ำ Hàn! เดินเล่นตอนเย็น วิวสะพาน+ไฟสวย ฟรี",cat:"nightlife",z:"HC",addr:"Bạch Đằng, Hải Châu",lat:16.0617,lng:108.2240,pay:"🆓",bud:"ฟรี (ซื้ออาหาร/เครื่องดื่มเพิ่ม)",rat:"4.5⭐",img:"🌉"},
+  night_7bridges:{t:"7 Bridges Brewing",d:"Craft beer ท้องถิ่น! Rooftop วิว Dragon Bridge ชิลมาก รางวัล Best Beer in Asia",cat:"nightlife",z:"ST",addr:"An Thượng, Sơn Trà",lat:16.0530,lng:108.2415,pay:"💳/💵",bud:"80-180k₫(~110-250฿)",rat:"4.6⭐",img:"🍻"},
+  night_brilliant:{t:"Brilliant Top Bar",d:"Rooftop bar เงียบสงบ วิวHan River+Dragon Bridge Happy Hour 5PM ไม่ดัง นั่งคุยสบาย",cat:"nightlife",z:"HC",addr:"Brilliant Hotel, 162 Bạch Đằng",lat:16.0615,lng:108.2250,pay:"💳/💵",bud:"120-300k₫(~170-420฿)",rat:"4.4⭐",img:"🌆"},
+  night_anthuong:{t:"An Thượng Night Market",d:"ตลาดกลางคืนย่าน Expat! อาหารนานาชาติ Craft beer บรรยากาศสบาย",cat:"nightlife",z:"NHS",addr:"An Thượng, Ngũ Hành Sơn",lat:16.0520,lng:108.2418,pay:"💵",bud:"100-250k₫(~140-350฿)",rat:"4.3⭐",img:"🏮"},
+};
+
+function dist(a,b){if(!a?.lat||!b?.lat)return null;const R=6371,dL=(b.lat-a.lat)*Math.PI/180,dG=(b.lng-a.lng)*Math.PI/180,x=Math.sin(dL/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dG/2)**2;return Math.round(2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*10)/10;}
+
+const INIT=[
+  {id:1,date:"29 May",dl:"ศุกร์",th:"Arrive + City Explore",ti:"🏙️",c:"#FFD166",
+   wake:"03:30",wakeNote:"😴 วันเดียวที่ต้องตื่นเช้า!",leave:"05:10",bath:"ผญ①03:30-04:05 → ผช04:05-04:25 → ผญ②04:25-05:00",
+   weather:{icon:"☀️",temp:"26-33°C",rain:"20%",desc:"แดดจัด ร้อนชื้น ลมทะเลสบาย",uv:"สูงมาก🧴"},
+   outfit:{style:"Casual City Walk",colors:"🤍ขาว + 🩵ฟ้า + เบจ",desc:"เสื้อยืดสีอ่อน กางเกงผ้า ผ้าใบ สะพายกระเป๋าผ้า",tip:"แว่นกันแดด+หมวก+SPF50+"},
+   acts:[
+    {fix:true,id:"p1",time:"03:30",t:"🚿 ห้องน้ำ BKK",d:"ผญ①03:30-04:05 → ผช04:05-04:25 → ผญ②04:25-05:00",lat:13.75,lng:100.52},
+    {fix:true,id:"p1b",time:"05:10",t:"🚖 ออก→สุวรรณภูมิ",d:"~45-60น. ถึง~06:00",lat:13.69,lng:100.75},
+    {fix:true,id:"p1c",time:"06:00",t:"🛫 BKK เช็คอิน+ตม.",d:"2ชม.ก่อน → VietJet+โหลดกระเป๋า+ตม.ไทย → ✈️~08:10",lat:13.69,lng:100.75},
+    {fix:true,id:"f1",time:"09:55",t:"✈️ ถึง DAD!",d:"บิน1ชม.45น. → รับกระเป๋า+ตม.เวียดนาม ~30น.",lat:16.0559,lng:108.199},
+    {fix:true,id:"f2",time:"10:30",t:"🏨 Check-in Lahome",d:"Grab~6km~15น.(~80-100k₫)",lat:16.06,lng:108.246},
+    {pk:"cafe_dom",time:"11:30"},{pk:"food_banhxeo",time:"13:00"},{pk:"shop_phan",time:"14:30"},{pk:"night_sontra",time:"18:30"},
+  ]},
+  {id:2,date:"30 May",dl:"เสาร์",th:"Temple+Beach+🐉Fire Show!",ti:"🙏",c:"#06D6A0",
+   wake:"07:30",wakeNote:"ตื่นสบาย☀️",leave:"09:10",bath:"ผญ①07:30-08:05 → ผช08:05-08:25 → ผญ②08:25-09:00",
+   weather:{icon:"☀️",temp:"26-34°C",rain:"15%",desc:"แดดจ้า ท้องฟ้าใส เหมาะวัด+หาด",uv:"สูงมาก🧴"},
+   outfit:{style:"Temple+Beach",colors:"🩵ฟ้า + 🤍ขาว + ครีม",desc:"เสื้อแขนสั้นสีฟ้า + กางเกงขายาวบาง(เข้าวัด) + ชุดว่ายน้ำข้างใน",tip:"ผ้าคลุมไหล่+แตะ+ผ้าเช็ดตัว"},
+   acts:[
+    {fix:true,id:"p2",time:"07:30",t:"🚿 ห้องน้ำ Lahome",d:"ผญ①07:30-08:05→ผช08:05-08:25→ผญ②08:25-09:00→ออก09:10",lat:16.06,lng:108.246},
+    {pk:"cafe_light",time:"09:15"},{pk:"act_temple",time:"10:30"},{pk:"food_trihang",time:"12:30"},{pk:"shop_hana",time:"14:30"},{pk:"act_beach",time:"16:00"},{pk:"night_buffalo",time:"19:00"},
+    {pk:"act_dragon",time:"21:00"},
+  ]},
+  {id:3,date:"31 May",dl:"อาทิตย์",th:"Ice Bath+Beach Party",ti:"🧊",c:"#118AB2",
+   wake:"08:30",wakeNote:"วันสายสุด!🎉",leave:"10:15",bath:"ผญ①08:30-09:05 → ผช09:05-09:25 → ผญ②09:25-10:00",
+   weather:{icon:"🌤️",temp:"27-34°C",rain:"25%",desc:"ส่วนใหญ่แดด อาจฝนช่วงบ่าย",uv:"สูง🧴"},
+   outfit:{style:"Beach Club Chic",colors:"💛เหลืองมัสตาร์ด + 🤍ขาว + มิ้นท์",desc:"ชุดว่ายน้ำ+Cover-up ผ้าบาง+เดรสสั้น/ลินิน — พร้อมถ่ายรูปKalà Kalà",tip:"กันน้ำมือถือ+SPF+หมวกสาน"},
+   acts:[
+    {fix:true,id:"p3",time:"08:30",t:"🚿 ห้องน้ำ Lahome",d:"ผญ①08:30-09:05→ผช09:05-09:25→ผญ②09:25-10:00→ออก10:15",lat:16.06,lng:108.246},
+    {pk:"cafe_tan",time:"10:30"},{pk:"shop_tta",time:"11:30"},{pk:"food_bepcuon",time:"12:30"},{pk:"act_ice",time:"14:00"},
+    {fix:true,id:"kc",time:"16:30",t:"🏖️ Kalà Kalà Sunset+Dinner",d:"ว่ายน้ำ1ชม.→🌅Sunset Cocktail 17:30(Happy Hour!)→🍽️Dinner 19:00→ออก~20:30(~4ชม.)",lat:16.0465,lng:108.2415},
+  ]},
+  {id:4,date:"1 Jun",dl:"จันทร์",th:"Hoi An+Spa+✈️Home",ti:"✨",c:"#EF476F",
+   wake:"07:30",wakeNote:"สบาย ไฟลท์เย็น18:10",leave:"09:10",bath:"ผญ①07:30-08:05 → ผช08:05-08:25 → ผญ②08:25-09:00",
+   weather:{icon:"☀️",temp:"27-33°C",rain:"20%",desc:"แดดสวย วันสุดท้ายสดใส",uv:"สูง🧴"},
+   outfit:{style:"Effortless Travel",colors:"🩷ชมพูพาสเทล + 🤍ขาว + เบจ",desc:"เดรสสั้นสบาย+ผ้าใบ — น่ารักถ่ายรูปHội An+สะดวกขึ้นเครื่อง",tip:"กระเป๋าเล็กcarry-on ready"},
+   acts:[
+    {fix:true,id:"p4",time:"07:30",t:"🚿 ห้องน้ำ+แพ็ค",d:"ผญ①07:30-08:05→ผช08:05-08:25→ผญ②08:25-09:00 Check-out ฝากกระเป๋า→ออก09:10",lat:16.06,lng:108.246},
+    {pk:"cafe_ala",time:"09:15"},{pk:"act_hoian",time:"10:30"},{pk:"food_pizza",time:"12:30"},{pk:"act_spa",time:"14:00"},
+    {fix:true,id:"f5",time:"15:45",t:"🧳 รับกระเป๋า→DAD",d:"Grab~6km~15-20น.(~80-100k₫)",lat:16.0559,lng:108.199},
+    {fix:true,id:"f5b",time:"16:05",t:"🛬 DAD เช็คอิน+ตม.",d:"2ชม.ก่อน→VietJet+โหลด+ตม.เวียดนาม+Duty Free",lat:16.0559,lng:108.199},
+    {fix:true,id:"f6",time:"18:10",t:"✈️ กลับBKK ~19:55",d:"VietJet 1ชม.45น. ถึงสุวรรณภูมิ~19:55🌺",lat:13.69,lng:100.75},
+  ]},
+];
+
+// Duration in minutes per activity
+const DUR={cafe_dom:45,cafe_light:45,cafe_tan:45,cafe_ala:45,cafe_xliii:60,cafe_nam:45,cafe_marou:45,cafe_wonder:45,cafe_cong:40,cafe_dreamer:45,food_banhxeo:60,food_bepcuon:60,food_moc:75,food_trihang:75,food_banhmi:20,food_phuhong:60,food_pizza:75,food_madamelan:75,food_miquang:45,food_comga:45,shop_phan:90,shop_hana:60,shop_tta:90,shop_han:90,shop_anthuong:120,shop_salavi:60,shop_bovintage:60,shop_gocnho:60,shop_outstanda:45,shop_rap:60,act_temple:60,act_ice:120,act_spa:90,act_beach:120,act_kala:240,act_hoian:180,act_marble:90,act_dragon:30,act_sontramarina:60,act_lovebridge:30,rest_lahome:60,night_sontra:90,night_buffalo:120,night_sky36:120,night_bachdang:60,night_7bridges:90,night_brilliant:90,night_anthuong:90};
+
+function res(a){if(a.pk&&P[a.pk])return{...P[a.pk],id:a.pk,pk:a.pk,time:a.time||"—",dur:DUR[a.pk]||60};return{...a,pk:null,time:a.time||"—",dur:a.dur||30};}
+
+function Card({a,prev,dayC,onSwap,onUp,onDn,onRemove,onTimeChange}){
+  const[exp,setExp]=useState(false);const[showS,setShowS]=useState(false);const[fCat,setFCat]=useState(null);const[editTime,setEditTime]=useState(false);
+  const r=res(a),p=prev?res(prev):null,km=p?dist(p,r):null;
+  const ci=r.cat&&CATS[r.cat]?CATS[r.cat]:null,cc=ci?ci.c:"#8ecae6";
+  const aCat=fCat||(r.cat&&CATS[r.cat]?r.cat:null);
+  const alts=useMemo(()=>{if(!aCat||!CATS[aCat])return[];return Object.entries(P).filter(([k,v])=>v.cat===aCat&&k!==a.pk).map(([k,v])=>({k,...v,prox:r.z&&v.z===r.z?0:r.z&&NEAR[r.z]?.includes(v.z)?1:2})).sort((x,y)=>x.prox-y.prox);},[aCat,a.pk,r.z]);
+  const mapsQ=encodeURIComponent((r.t||"")+" "+(r.addr||"")+" Da Nang");
+  const mapsPhotoUrl=`https://www.google.com/maps/search/${mapsQ}`;
+  return(<div style={{marginBottom:5}}>
+    {km!==null&&km>0&&<div style={{textAlign:"center",padding:"1px 0",fontSize:9,color:"#bbb"}}>┆<span style={{background:"#f0f0f0",padding:"1px 5px",borderRadius:3,fontWeight:600}}>🚗{km}km</span>┆</div>}
+    <div className="cd" onClick={()=>!a.fix&&setExp(!exp)} style={{background:"rgba(255,255,255,0.92)",borderRadius:12,padding:"9px 11px",border:`1.5px solid ${cc}40`,cursor:a.fix?"default":"pointer"}}>
+      {/* Top row: emoji + info (full width) */}
+      <div style={{display:"flex",alignItems:"center",gap:8}}>
+        <div style={{background:"rgba(0,0,0,0.03)",borderRadius:9,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{r.img?r.img.slice(0,2):ci?.i||"📌"}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:4,flexWrap:"wrap"}}>
+            {!a.fix&&editTime?<input type="time" defaultValue={r.time!=="—"?r.time:""} autoFocus style={{fontFamily:"'Outfit',sans-serif",fontWeight:700,fontSize:11,color:cc,border:`1.5px solid ${cc}`,borderRadius:5,padding:"2px 4px",width:80,outline:"none"}} onClick={e=>e.stopPropagation()} onBlur={e=>{setEditTime(false);if(e.target.value&&onTimeChange)onTimeChange(e.target.value);}} onKeyDown={e=>{if(e.key==="Enter"){setEditTime(false);if(e.target.value&&onTimeChange)onTimeChange(e.target.value);}}}/>
+            :<span onClick={e=>{if(!a.fix){e.stopPropagation();setEditTime(true);}}} style={{fontWeight:700,fontSize:10,color:cc,background:cc+"12",padding:"2px 6px",borderRadius:4,cursor:a.fix?"default":"pointer"}}>{r.time}{!a.fix&&" ✏️"}</span>}
+            {r.dur&&!a.fix&&<span style={{fontSize:8,color:"#888",background:"#f0f0f0",padding:"1px 5px",borderRadius:3}}>⏱️{r.dur}น.</span>}
+            {r.z&&ZL[r.z]&&<span style={{fontSize:8,color:"#999",background:"#f5f5f5",padding:"1px 5px",borderRadius:3}}>{ZL[r.z]}</span>}
+            {r.rat&&<span style={{fontSize:8,fontWeight:600,color:"#f59e0b",background:"#fef3c7",padding:"1px 5px",borderRadius:3}}>{r.rat}</span>}
+            {r.opt&&<span style={{fontSize:8,fontWeight:600,color:"#ef476f",background:"#ef476f10",padding:"1px 5px",borderRadius:3}}>OPT</span>}
+            {r.ft&&<span style={{fontSize:8,fontWeight:600,color:"#fb8500",background:"#fb850008",padding:"1px 5px",borderRadius:3}}>{r.ft}</span>}
+          </div>
+          <div style={{fontWeight:600,fontSize:13,color:"#1a1a2e",marginTop:2}}>{r.t}</div>
+        </div>
+      </div>
+      {/* Bottom row: action buttons */}
+      {!a.fix&&<div style={{display:"flex",gap:4,marginTop:6,justifyContent:"flex-end"}} onClick={e=>e.stopPropagation()}>
+        <button className="bs" onClick={onUp}>↑</button><button className="bs" onClick={onDn}>↓</button>
+        {a.pk&&<button className="bs" onClick={()=>setShowS(!showS)} style={{background:showS?`${dayC}28`:"#00b4d812",color:showS?dayC:"#00b4d8",fontWeight:700}}>🔄</button>}
+        <button className="bs" onClick={onRemove} style={{background:"#ef476f10",color:"#ef476f",fontSize:11}}>✕</button>
+      </div>}
+      </div>
+      {exp&&!a.fix&&<div style={{marginTop:6,paddingTop:6,borderTop:"1px dashed #e8e8e8",animation:"fi .2s",fontSize:10,color:"#555",lineHeight:1.7}}>
+        {/* Photo section — Google Maps link + styled preview */}
+        {r.addr&&<a href={mapsPhotoUrl} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}
+          style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,border:"1px solid #e0e0e0",background:"linear-gradient(135deg,#f8f9fa,#e8f0fe)",textDecoration:"none",marginBottom:6,cursor:"pointer"}}>
+          <div style={{fontSize:28,flexShrink:0}}>{r.img||"📍"}</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:10,fontWeight:700,color:"#1a73e8"}}>📸 แตะเพื่อดูภาพจริงบน Google Maps</div>
+            <div style={{fontSize:8,color:"#666",marginTop:1}}>เปิดในแท็บใหม่ → ดูรูปถ่าย รีวิว เส้นทาง ได้เลย</div>
+          </div>
+          <span style={{fontSize:14}}>→</span>
+        </a>}
+        <div>{r.d}</div>
+        <div style={{marginTop:3,display:"flex",flexWrap:"wrap",gap:5}}>
+          <span style={{background:"#e8f5e9",padding:"2px 5px",borderRadius:4,fontSize:9}}>{r.pay||"—"}</span>
+          <span style={{background:"#fff3e0",padding:"2px 5px",borderRadius:4,fontSize:9}}>💰{r.bud||"—"}/คน</span>
+          {r.rat&&<span style={{background:"#fef3c7",padding:"2px 5px",borderRadius:4,fontSize:9}}>📍{r.rat}</span>}
+          {r.dur&&<span style={{background:"#ede9fe",padding:"2px 5px",borderRadius:4,fontSize:9}}>⏱️แนะนำ {r.dur} นาที</span>}
+        </div>
+        <div style={{marginTop:2,fontSize:9,color:"#999"}}>📍{r.addr}</div>
+      </div>}
+    </div>
+    {showS&&<div style={{margin:"3px 0 2px 14px",background:"rgba(255,255,255,0.95)",border:`1.5px solid ${dayC}28`,borderRadius:10,padding:7,animation:"fi .2s",maxHeight:280,overflowY:"auto"}}>
+      <div style={{display:"flex",gap:2,marginBottom:5,flexWrap:"wrap"}}>
+        {Object.entries(CATS).map(([k,v])=><button key={k} onClick={()=>setFCat(k)} style={{fontSize:8,fontWeight:600,padding:"2px 6px",borderRadius:5,border:`1px solid ${aCat===k?v.c+"88":"#ddd"}`,background:aCat===k?v.c+"15":"#fafafa",color:aCat===k?v.c:"#999",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{v.i}{v.l.replace(/^. /,"")}</button>)}
+      </div>
+      {alts.length===0&&<div style={{fontSize:9,color:"#bbb",textAlign:"center",padding:6}}>ไม่มีตัวเลือก</div>}
+      {alts.map(al=><button key={al.k} onClick={()=>{onSwap(al.k);setShowS(false);setFCat(null);}} style={{display:"flex",alignItems:"center",gap:5,width:"100%",padding:"6px 7px",border:`1px solid ${al.prox===0?dayC+"40":"#eee"}`,borderRadius:8,background:al.prox===0?`${dayC}05`:"#fff",cursor:"pointer",fontFamily:"'Outfit',sans-serif",textAlign:"left",marginBottom:3}}>
+        <div style={{background:CATS[al.cat]?.bg||"#eee",borderRadius:6,width:26,height:26,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#fff",flexShrink:0}}>{al.img||"📌"}</div>
+        <div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:10,color:"#1a1a2e"}}>{al.t} <span style={{fontSize:7,color:"#f59e0b"}}>{al.rat}</span></div><div style={{fontSize:8,color:"#999"}}>💰{al.bud}·{al.pay}</div></div>
+        <span style={{fontSize:7,fontWeight:600,color:al.prox===0?"#06d6a0":al.prox===1?"#ffa62b":"#ccc",background:al.prox===0?"#06d6a00D":al.prox===1?"#ffa62b0D":"#f5f5f5",padding:"2px 4px",borderRadius:4,whiteSpace:"nowrap"}}>{al.prox===0?"✓โซนเดียว":al.prox===1?"↗ใกล้":"↗↗ไกล"}</span>
+      </button>)}
+      <button onClick={()=>{setShowS(false);setFCat(null);}} style={{width:"100%",padding:4,border:"none",borderRadius:6,background:"#f0f0f0",cursor:"pointer",fontSize:9,fontWeight:600,color:"#888",fontFamily:"'Outfit',sans-serif"}}>ปิด</button>
+    </div>}
+  </div>);
+}
+
+// App with Firebase real-time sync
+function AppFirebase() {
+  const { useState, useMemo, useEffect, useRef } = React;
+  const SAVE_KEY = "danang_trip_v6";
+  const isRemote = useRef(false);
+  const hasSynced = useRef(false);
+  const dbRef = useRef(null);
+  const [syncStatus, setSyncStatus] = useState("connecting");
+
+  const loadSaved = () => {
+    try {
+      const s = localStorage.getItem(SAVE_KEY);
+      if (s) { const d = JSON.parse(s); if (d && d.length === 4) return d; }
+    } catch(e) {}
+    return null;
+  };
+
+  const [days, setDays] = useState(() => loadSaved() || INIT);
+  const [ad, setAd] = useState(1);
+  const [addMenu, setAddMenu] = useState(null);
+  const [addCat, setAddCat] = useState(null);
+  const [showImport, setShowImport] = useState(false);
+
+  // Firebase real-time listener
+  useEffect(() => {
+    let cancelled = false;
+    let unsubs = [];
+
+    function tryConnect() {
+      if (cancelled) return;
+      if (!window._fbReady || !window._fbDb) {
+        setTimeout(tryConnect, 600);
+        return;
+      }
+      const planRef = window._fbRef(window._fbDb, "plan");
+      dbRef.current = planRef;
+
+      const unsub1 = window._fbOnValue(planRef, (snap) => {
+        const data = snap.val();
+        if (data && Array.isArray(data) && data.length === 4) {
+          isRemote.current = true;
+          setDays(data);
+        } else if (!data && !hasSynced.current) {
+          // Firebase empty (first time) — push local data up
+          window._fbSet(planRef, INIT);
+        }
+        hasSynced.current = true;
+        setSyncStatus("synced");
+      });
+      unsubs.push(unsub1);
+
+      const connRef = window._fbRef(window._fbDb, ".info/connected");
+      const unsub2 = window._fbOnValue(connRef, (snap) => {
+        if (!cancelled) setSyncStatus(snap.val() ? "synced" : "offline");
+      });
+      unsubs.push(unsub2);
+    }
+    tryConnect();
+
+    return () => { cancelled = true; unsubs.forEach(u => u && u()); };
+  }, []);
+
+  // Save: localStorage always, Firebase only AFTER first sync
+  useEffect(() => {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(days)); } catch(e) {}
+
+    if (isRemote.current) {
+      isRemote.current = false;
+      return;
+    }
+    if (hasSynced.current && dbRef.current && window._fbSet) {
+      window._fbSet(dbRef.current, days);
+    }
+  }, [days]);
+
+  const resetAll = () => {
+    if (confirm("รีเซ็ตแพลนทั้งหมดกลับเป็นค่าเริ่มต้น?")) {
+      setDays(INIT);
+      localStorage.removeItem(SAVE_KEY);
+    }
+  };
+
+  const swap=(di,ai,nk)=>setDays(p=>p.map(d=>d.id!==di?d:{...d,acts:d.acts.map((a,i)=>i===ai?{pk:nk,time:a.time}:a)}));
+  const mv=(di,ai,dir)=>setDays(p=>p.map(d=>{if(d.id!==di)return d;const a=[...d.acts];const ni=ai+dir;if(ni<0||ni>=a.length)return d;[a[ai],a[ni]]=[a[ni],a[ai]];return{...d,acts:a};}));
+  const remove=(di,ai)=>setDays(p=>p.map(d=>d.id!==di?d:{...d,acts:d.acts.filter((_,i)=>i!==ai)}));
+  const addAct=(di,pk)=>{setDays(p=>p.map(d=>{if(d.id!==di)return d;if(d.acts.some(a=>a.pk===pk))return d;return{...d,acts:[...d.acts,{pk,time:"—"}]};}));setAddMenu(null);};
+  const changeTime=(di,ai,newTime)=>{
+    setDays(prev=>prev.map(d=>{
+      if(d.id!==di)return d;
+      const acts=[...d.acts];
+      acts[ai]={...acts[ai],time:newTime};
+      const parseT=t=>{const m=t.match(/(\d{1,2}):(\d{2})/);return m?parseInt(m[1])*60+parseInt(m[2]):null;};
+      const fmtT=m=>{const h=Math.floor(m/60)%24;const mn=m%60;return`${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;};
+      let prevMin=parseT(newTime);
+      if(prevMin===null)return{...d,acts};
+      const prevR=res(acts[ai]);
+      prevMin+=prevR.dur||60;
+      for(let j=ai+1;j<acts.length;j++){
+        if(acts[j].fix)continue;
+        const rr=res(acts[j]);
+        const travelMin=Math.max(5,Math.round((dist(prevR,rr)||2)*3));
+        const arriveMin=prevMin+travelMin;
+        acts[j]={...acts[j],time:fmtT(arriveMin)};
+        prevMin=arriveMin+(rr.dur||60);
+      }
+      return{...d,acts};
+    }));
+  };
+
+  const cur=days.find(d=>d.id===ad);
+  const findD=pk=>days.find(d=>d.acts.some(a=>a.pk===pk));
+  const checks=[
+    {l:"☕ทุกวัน",p:days.every(d=>d.acts.some(a=>a.pk&&P[a.pk]?.cat==="cafe"))},
+    {l:"🛍️2วัน",p:days.filter(d=>d.acts.some(a=>a.pk&&P[a.pk]?.cat==="shopping")).length>=2},
+    {l:"🍢≠🍺",p:(()=>{const a=findD("night_sontra"),b=findD("night_buffalo");return!a||!b||a.id!==b.id;})()},
+    {l:"🙏≠🧊",p:(()=>{const a=findD("act_temple"),b=findD("act_ice");return!a||!b||a.id!==b.id;})()},
+    {l:"💆ท้าย",p:(()=>{const s=findD("act_spa");return!s||s.id>=3;})()},
+  ];
+
+  const statusColor = syncStatus==="synced"?"#06d6a0":syncStatus==="connecting"?"#ffa62b":"#888";
+  const statusText = syncStatus==="synced"?"🟢 Synced กับเพื่อน":syncStatus==="connecting"?"🟡 กำลังเชื่อมต่อ...":syncStatus==="local"?"💾 Local (ไม่มี Firebase)":"🔴 Offline";
+
+  return(
+  <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#e0f7fa 0%,#fff9e6 25%,#fce4ec 50%,#e8f5e9 75%,#e3f2fd 100%)",fontFamily:"'Outfit',sans-serif",WebkitTextSizeAdjust:"100%"}}>
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}*{box-sizing:border-box}body{margin:0;font-size:14px}.cd{transition:all .2s}.cd:hover{transform:translateY(-1px);box-shadow:0 2px 10px rgba(0,0,0,0.07)!important}.bs{border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;background:rgba(0,0,0,0.04)}.bs:hover{background:rgba(0,0,0,0.1)}`}</style>
+    <svg viewBox="0 0 1440 50" style={{display:"block",width:"100%",height:22}}><path d="M0,25C400,50,800,0,1200,25L1440,25L1440,50L0,50Z" fill="rgba(17,138,178,0.04)"/></svg>
+    <div style={{maxWidth:760,margin:"0 auto",padding:"0 16px 40px",zoom:1.35}}>
+      {/* Sync status bar */}
+      <div style={{textAlign:"center",marginBottom:6}}>
+        <span style={{fontSize:10,fontWeight:600,color:statusColor,background:statusColor+"15",padding:"3px 10px",borderRadius:20}}>{statusText}</span>
+      </div>
+      <div style={{textAlign:"center",marginBottom:16}}>
+        <div style={{fontSize:32}}>🌊🌺🍋</div>
+        <h1 style={{fontFamily:"'Outfit',sans-serif",fontSize:26,fontWeight:800,color:"#1a1a2e",margin:"4px 0"}}>Da Nang มีจริงแล้ว</h1>
+        <div style={{fontSize:16}}>°.🐚⋆🌺˖°🫧</div>
+        <p style={{color:"#888",fontSize:13,margin:"4px 0"}}>kk + 2 friends · 29 May — 1 Jun 2026</p>
+        <p style={{color:"#aaa",fontSize:11,margin:0}}>แตะ = ดูรายละเอียด · 🔄 สลับ · ✕ ลบ · + เพิ่ม</p>
+      </div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:"3px 5px",justifyContent:"center",background:"rgba(255,255,255,0.6)",borderRadius:8,padding:"4px 8px",marginBottom:7}}>
+        {checks.map((c,i)=><span key={i} style={{fontSize:8,fontWeight:600,color:c.p?"#06d6a0":"#ef476f",padding:"1px 4px",borderRadius:3,background:c.p?"#06d6a008":"#ef476f08"}}>{c.p?"✓":"✗"}{c.l}</span>)}
+      </div>
+      <div style={{display:"flex",gap:3,marginBottom:7}}>
+        {days.map(d=><button key={d.id} onClick={()=>{setAd(d.id);setAddMenu(null);setAddCat(null);}} style={{flex:1,padding:"5px 2px",border:ad===d.id?`2px solid ${d.c}`:"1.5px solid rgba(0,0,0,0.04)",borderRadius:8,background:ad===d.id?`${d.c}12`:"rgba(255,255,255,0.4)",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+          <div style={{fontSize:11}}>{d.ti}</div>
+          <div style={{fontWeight:700,fontSize:8,color:ad===d.id?d.c:"#999"}}>DAY{d.id}</div>
+          <div style={{fontSize:7,color:"#bbb"}}>{d.date}</div>
+        </button>)}
+      </div>
+      {cur&&<div style={{background:`linear-gradient(135deg,${cur.c}08,${cur.c}03)`,borderRadius:12,padding:10,border:`1.5px solid ${cur.c}28`,animation:"fi .3s"}}>
+        <div style={{textAlign:"center",marginBottom:5}}>
+          <span style={{background:cur.c,borderRadius:6,padding:"3px 9px",fontWeight:800,color:"#fff",fontSize:8}}>DAY{cur.id} — {cur.date}({cur.dl})</span>
+          <div style={{fontSize:11,fontWeight:700,color:"#1a1a2e",marginTop:2}}>{cur.ti} {cur.th}</div>
+        </div>
+        <div style={{display:"flex",gap:5,marginBottom:6,flexWrap:"wrap"}}>
+          {cur.weather&&<div style={{flex:1,minWidth:130,background:"rgba(255,255,255,0.9)",borderRadius:9,padding:"7px 9px",border:"1px solid #e0f2fe"}}>
+            <div style={{fontSize:7,fontWeight:700,color:"#0ea5e9"}}>🌤️สภาพอากาศ</div>
+            <div style={{display:"flex",alignItems:"center",gap:5,marginTop:2}}>
+              <span style={{fontSize:20}}>{cur.weather.icon}</span>
+              <div><div style={{fontSize:12,fontWeight:800,color:"#1a1a2e"}}>{cur.weather.temp}</div><div style={{fontSize:8,color:"#666"}}>{cur.weather.desc}</div></div>
+            </div>
+            <div style={{fontSize:7,marginTop:2,color:"#888"}}>🌧️ฝน:{cur.weather.rain} · UV:{cur.weather.uv}</div>
+          </div>}
+          {cur.outfit&&<div style={{flex:1,minWidth:130,background:"rgba(255,255,255,0.9)",borderRadius:9,padding:"7px 9px",border:`1px solid ${cur.c}18`}}>
+            <div style={{fontSize:7,fontWeight:700,color:cur.c}}>👗แนะนำแต่งตัว</div>
+            <div style={{fontSize:9,fontWeight:700,color:"#1a1a2e",marginTop:2}}>{cur.outfit.style}</div>
+            <div style={{fontSize:8,color:"#555",marginTop:1}}>{cur.outfit.desc}</div>
+            <div style={{fontSize:10,marginTop:2}}>{cur.outfit.colors}</div>
+            <div style={{fontSize:7,color:"#888",marginTop:1}}>💡{cur.outfit.tip}</div>
+          </div>}
+        </div>
+        <div style={{background:"rgba(255,255,255,0.85)",borderRadius:9,padding:"6px 9px",marginBottom:6,border:`1px solid ${cur.c}20`,display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+          <div><span style={{fontSize:7,fontWeight:700,color:cur.c}}>⏰ตื่น</span><div style={{fontSize:13,fontWeight:800}}>{cur.wake}</div><div style={{fontSize:7,color:"#888"}}>{cur.wakeNote}</div></div>
+          <div><span style={{fontSize:7,fontWeight:700,color:cur.c}}>🚪ออก</span><div style={{fontSize:13,fontWeight:800}}>{cur.leave}</div></div>
+          <div style={{flex:1,minWidth:160}}><span style={{fontSize:7,fontWeight:700,color:cur.c}}>🚿ห้องน้ำ(1ห้อง·ผญ35น.ผช20น.)</span><div style={{fontSize:8,fontWeight:600,color:"#444"}}>{cur.bath}</div></div>
+        </div>
+        {cur.acts.map((a,i)=><Card key={a.pk||a.id||i} a={a} prev={i>0?cur.acts[i-1]:null} dayC={cur.c}
+          onSwap={nk=>swap(cur.id,i,nk)} onUp={()=>mv(cur.id,i,-1)} onDn={()=>mv(cur.id,i,1)} onRemove={()=>remove(cur.id,i)}
+          onTimeChange={nt=>changeTime(cur.id,i,nt)}/>)}
+        <div style={{textAlign:"center",marginTop:5}}>
+          <button onClick={()=>{setAddMenu(addMenu===cur.id?null:cur.id);setAddCat(null);}} style={{fontFamily:"'Outfit',sans-serif",fontSize:9,fontWeight:600,color:"#06d6a0",background:"#06d6a008",border:"1px solid #06d6a020",borderRadius:7,padding:"4px 12px",cursor:"pointer"}}>{addMenu===cur.id?"ปิด ▲":"+ เพิ่มกิจกรรม"}</button>
+        </div>
+        {addMenu===cur.id&&<div style={{marginTop:5,background:"rgba(255,255,255,0.92)",borderRadius:9,padding:7,border:"1px solid #06d6a015",animation:"fi .2s",maxHeight:280,overflowY:"auto"}}>
+          <div style={{display:"flex",gap:2,marginBottom:6,flexWrap:"wrap"}}>
+            {Object.entries(CATS).map(([k,v])=>{const cnt=Object.entries(P).filter(([pk,pv])=>pv.cat===k&&!cur.acts.some(a=>a.pk===pk)).length;return(
+              <button key={k} onClick={()=>setAddCat(addCat===k?null:k)} style={{fontSize:8,fontWeight:600,padding:"3px 7px",borderRadius:5,border:`1px solid ${addCat===k?v.c+"88":"#ddd"}`,background:addCat===k?v.c+"15":"#fafafa",color:addCat===k?v.c:"#999",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{v.i}{v.l.replace(/^. /,"")} ({cnt})</button>
+            );})}
+          </div>
+          {!addCat&&<div style={{fontSize:9,color:"#aaa",textAlign:"center",padding:8}}>👆 เลือกหมวดหมู่ก่อน</div>}
+          {addCat&&Object.entries(P).filter(([k,v])=>v.cat===addCat&&!cur.acts.some(a=>a.pk===k)).map(([k,v])=>(
+            <button key={k} onClick={()=>addAct(cur.id,k)} style={{display:"flex",alignItems:"center",gap:5,width:"100%",padding:"5px 7px",border:"1px solid #eee",borderRadius:7,background:"#fff",cursor:"pointer",fontFamily:"'Outfit',sans-serif",textAlign:"left",marginBottom:3}}>
+              <div style={{fontSize:16,flexShrink:0}}>{v.img||CATS[v.cat]?.i||"📌"}</div>
+              <div style={{flex:1}}><div style={{fontWeight:600,fontSize:10,color:"#1a1a2e"}}>{v.t} <span style={{fontSize:7,color:"#f59e0b"}}>{v.rat}</span></div><div style={{fontSize:8,color:"#666"}}>{v.d}</div><div style={{fontSize:7,color:"#999"}}>💰{v.bud} · ⏱️{DUR[k]||60}น.</div></div>
+              <span style={{fontSize:11,color:"#06d6a0"}}>➕</span>
+            </button>
+          ))}
+          {addCat&&Object.entries(P).filter(([k,v])=>v.cat===addCat&&!cur.acts.some(a=>a.pk===k)).length===0&&<div style={{fontSize:9,color:"#aaa",textAlign:"center",padding:6}}>หมวดนี้เพิ่มครบแล้ว ✓</div>}
+        </div>}
+      </div>}
+      <div style={{textAlign:"center",marginTop:16}}>
+        <div style={{fontSize:11,color:"#aaa",marginBottom:8}}>{syncStatus==="synced"?"🔄 ทุกคนแก้ไขพร้อมกัน real-time":"💾 Auto Save"}</div>
+        <div style={{display:"flex",gap:6,justifyContent:"center",flexWrap:"wrap"}}>
+          <button onClick={resetAll} style={{fontFamily:"'Outfit',sans-serif",fontSize:11,fontWeight:600,color:"#ef476f",background:"#ef476f08",border:"1.5px solid #ef476f25",borderRadius:8,padding:"6px 14px",cursor:"pointer"}}>🔄 รีเซ็ต</button>
+        </div>
+        <div style={{fontSize:10,color:"#ccc",marginTop:10}}>°.🐚⋆🌺˖°🫧<div style={{fontSize:16,marginTop:2}}>🌺🍋🌊</div></div>
+      </div>
+    </div>
+  </div>);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(AppFirebase));
+</script>
+</body>
+</html>
