@@ -1,23 +1,34 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>🌊 Da Nang มีจริงแล้ว °.🐚⋆🌺˖°🫧</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover"/>
+<title>Da Nang 2026 °.🐚⋆🌺˖°🫧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&family=Mitr:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  html{font-size:16px}
-  body{margin:0;padding:0;-webkit-text-size-adjust:100%;font-family:'Outfit',sans-serif}
-  *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
-  input[type="time"]{-webkit-appearance:none;font-size:inherit}
+  :root{ --fs: 1; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; background:linear-gradient(160deg,#e0f7fa 0%,#fff9e6 25%,#fce4ec 50%,#e8f5e9 75%,#e3f2fd 100%); }
+  body{
+    font-family: 'Comic Relief', 'Mitr', 'Comic Sans MS', system-ui, sans-serif;
+    color:#1a1a2e; -webkit-text-size-adjust:100%;
+    overscroll-behavior-y: contain;
+  }
+  input, button, textarea, select{ font-family: inherit; }
+  #root{ max-width:520px; margin:0 auto; min-height:100vh; position:relative; box-shadow:0 0 60px rgba(0,0,0,0.06); background:transparent; }
+  ::-webkit-scrollbar{ display:none; }
+  body{ scrollbar-width:none; }
 </style>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
 try {
-  const app = initializeApp({
+  firebase.initializeApp({
     apiKey: "AIzaSyCrwwMUYC-Zq8SvOmm_vn1WrhsKG0zFXRs",
     authDomain: "da-nang-c5fd4.firebaseapp.com",
     databaseURL: "https://da-nang-c5fd4-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -26,418 +37,2294 @@ try {
     messagingSenderId: "1078037025946",
     appId: "1:1078037025946:web:7d01319020b5a4994c7b23"
   });
-  const db = getDatabase(app);
-  window._fbDb = db;
-  window._fbRef = ref;
-  window._fbSet = set;
-  window._fbOnValue = onValue;
-  window._fbReady = true;
+  window._fb = firebase.database();
   console.log("Firebase OK!");
-} catch(e) { console.warn("Firebase error:", e); window._fbReady = false; }
+} catch(e) { console.warn("Firebase error:", e); window._fb = null; }
 </script>
-</head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useMemo, useEffect, useRef } = React;
+<script>
+// Da Nang trip data — TH + EN bilingual
+window.ZL = {
+  HC:{th:"🏙️ City", en:"🏙️ City Centre"},
+  ST:{th:"🏖️ Beach", en:"🏖️ Beach Side"},
+  NHS:{th:"🌊 South", en:"🌊 South Coast"},
+  HA:{th:"🏮 Hội An", en:"🏮 Hội An"}
+};
+window.NEAR = { HC:["ST","NHS"], ST:["HC","NHS"], NHS:["ST","HC"], HA:["NHS"] };
 
-const ZL = { HC:"🏙️ City", ST:"🏖️ Beach", NHS:"🌊 South", HA:"🏮 Hội An" };
-const NEAR = { HC:["ST","NHS"], ST:["HC","NHS"], NHS:["ST","HC"], HA:["NHS"] };
-const CATS = {
-  cafe:{ l:"☕ คาเฟ่", c:"#d4a373", i:"☕", bg:"linear-gradient(135deg,#d4a373,#e6c9a8)" },
-  food:{ l:"🍽️ อาหาร", c:"#fb8500", i:"🍽️", bg:"linear-gradient(135deg,#fb8500,#fca44a)" },
-  shopping:{ l:"🛍️ ช้อปปิ้ง", c:"#e9c46a", i:"🛍️", bg:"linear-gradient(135deg,#e9c46a,#f0d98c)" },
-  activity:{ l:"🧩 กิจกรรม", c:"#00b4d8", i:"🧩", bg:"linear-gradient(135deg,#00b4d8,#48cae4)" },
-  nightlife:{ l:"🌙 กลางคืน", c:"#7209b7", i:"🌙", bg:"linear-gradient(135deg,#7209b7,#a855f7)" },
+window.CATS = {
+  cafe:    {th:"คาเฟ่",en:"Café",      i:"☕", c:"#d4a373", grad:"linear-gradient(135deg,#f4d4a3,#e8b87f)"},
+  food:    {th:"อาหาร",en:"Food",       i:"🍽️", c:"#fb8500", grad:"linear-gradient(135deg,#ffba6a,#fb8500)"},
+  shopping:{th:"ช้อปปิ้ง",en:"Shopping",i:"🛍️", c:"#e9c46a", grad:"linear-gradient(135deg,#f5dba0,#e9c46a)"},
+  activity:{th:"กิจกรรม",en:"Activity", i:"🧩", c:"#0096c7", grad:"linear-gradient(135deg,#7dd3eb,#0096c7)"},
+  nightlife:{th:"กลางคืน",en:"Nightlife",i:"🌙", c:"#7209b7", grad:"linear-gradient(135deg,#c084fc,#7209b7)"},
 };
 
-const P = {
-  cafe_dom:{t:"Đốm Café",d:"Retro มีแมว+หมา 7:00-19:00 (ปิดจันทร์)",cat:"cafe",z:"HC",addr:"22 Lê Quý Đôn",lat:16.0596,lng:108.2178,pay:"💵/💳",bud:"30-45k₫(~50฿)",rat:"4.9⭐",img:"🐱"},
-  cafe_light:{t:"Lighthouse",d:"Industrial Best Flat White! 7:30-22:00",cat:"cafe",z:"ST",addr:"12 Dương Đình Nghệ",lat:16.0636,lng:108.2459,pay:"💳/💵",bud:"50-80k₫(~90฿)",rat:"4.5⭐",img:"☕"},
-  cafe_tan:{t:"tan.",d:"โมเดิร์น-คลาสสิก กระจกใหญ่ สวนเขตร้อน",cat:"cafe",z:"HC",addr:"10 Nguyễn Thiện Thuật",lat:16.0621,lng:108.2177,pay:"💳/💵",bud:"40-70k₫(~75฿)",rat:"4.6⭐",img:"🌿"},
-  cafe_ala:{t:"Àla Cafe",d:"Specialty Roastery 7:30-17:30 (สาขา Hội An)",cat:"cafe",z:"HC",addr:"K113/27 Nguyễn Chí Thanh",lat:16.0575,lng:108.2138,pay:"💳/💵",bud:"50-130k₫(~130฿)",rat:"4.8⭐",img:"🏆"},
-  cafe_xliii:{t:"XLIII Coffee",d:"Premium Specialty ระดับ Connoisseur",cat:"cafe",z:"NHS",addr:"124 Yên Khê 1",lat:16.0528,lng:108.2301,pay:"💳",bud:"70-200k₫(~190฿)",rat:"4.7⭐",img:"🎯"},
-  cafe_nam:{t:"NAM House",d:"บ้านเวียดนาม90s Egg/Salt Coffee",cat:"cafe",z:"HC",addr:"15/1 Lê Hồng Phong",lat:16.0588,lng:108.2095,pay:"💵",bud:"25-50k₫(~50฿)",rat:"4.5⭐",img:"🏚️"},
-  food_banhxeo:{t:"Bánh Xèo Bà Dưỡng",d:"บั๋นแซวตำนาน! แป้งกรอบ ไส้กุ้ง-หมู",cat:"food",z:"HC",addr:"280/23 Hoàng Diệu",lat:16.0576,lng:108.2136,ft:"🇻🇳Crepes",pay:"💵เท่านั้น",bud:"50-80k₫(~90฿)",rat:"4.3⭐",img:"🥞"},
-  food_bepcuon:{t:"BepCuon",d:"Michelin Selected! ม้วนผัก กุ้งบอเทอร์",cat:"food",z:"ST",addr:"31-33 Trần Bạch Đằng",lat:16.0608,lng:108.2466,ft:"🌿Rolls",pay:"💳/💵",bud:"100-200k₫(~200฿)",rat:"4.5⭐🏅",img:"🌯"},
-  food_moc:{t:"Hải sản Mộc quán",d:"Michelin! เลือกจากแท้งค์ แกะให้",cat:"food",z:"ST",addr:"26 Tô Hiến Thành",lat:16.061,lng:108.2445,ft:"🦞Seafood",pay:"💳/💵",bud:"300-500k₫(~560฿)",rat:"4.6⭐🏅",img:"🦞"},
-  food_trihang:{t:"Hải Sản Trí Hằng",d:"ซีฟู้ดท้องถิ่น ซอสจิ้มบั๋นหมี่!",cat:"food",z:"ST",addr:"84-86 Cao Bá Quát",lat:16.0645,lng:108.2392,ft:"🦀Local",pay:"💵/💳",bud:"200-400k₫(~420฿)",rat:"4.4⭐",img:"🦀"},
-  food_banhmi:{t:"Bánh mì Maia",d:"Street food ริมทาง Maia Beach Bar",cat:"food",z:"NHS",addr:"284 Võ Nguyên Giáp",lat:16.043,lng:108.241,ft:"🥖Bánh mì",pay:"💵เท่านั้น",bud:"20-30k₫(~35฿)",rat:"4.2⭐",img:"🥖"},
-  food_phuhong:{t:"Quán Phú Hồng",d:"อาหารท้องถิ่น Da Nang",cat:"food",z:"HC",addr:"Da Nang",lat:16.058,lng:108.215,ft:"🥢Local",pay:"💵",bud:"80-150k₫(~160฿)",rat:"4.3⭐",img:"🥢"},
-  food_pizza:{t:"Pizza 4P's",d:"Japanese-Italian Burrata วิวแม่น้ำ",cat:"food",z:"HC",addr:"74 Bạch Đằng",lat:16.0621,lng:108.224,ft:"🍕Italian",pay:"💳/💵",bud:"200-400k₫(~420฿)",rat:"4.5⭐",img:"🍕"},
-  food_madamelan:{t:"Madame Lan",d:"เวียดนามริมแม่น้ำ เมนูเยอะ",cat:"food",z:"HC",addr:"4 Bạch Đằng",lat:16.0617,lng:108.2237,ft:"🍲Viet",pay:"💳/💵",bud:"150-300k₫(~315฿)",rat:"4.3⭐",img:"🍲"},
-  food_miquang:{t:"Mì Quảng 1A",d:"หมี่กวางอร่อยสุด! Da Nang แท้",cat:"food",z:"HC",addr:"1 Hải Phòng",lat:16.0598,lng:108.2175,ft:"🍜Local",pay:"💵เท่านั้น",bud:"35-60k₫(~65฿)",rat:"4.4⭐",img:"🍜"},
-  shop_phan:{t:"Phan Châu Trinh+Vintage",d:"Shopping Street+TTA/BINTAGE",cat:"shopping",z:"HC",addr:"Phan Châu Trinh",lat:16.0595,lng:108.2155,pay:"💵/💳บางร้าน",bud:"ตามชิ้น",rat:"4.3⭐",img:"👗"},
-  shop_hana:{t:"Hana 34 Jewelry",d:"เครื่องประดับ Vintage น่ารัก",cat:"shopping",z:"ST",addr:"Hana 34",lat:16.063,lng:108.24,pay:"💵/💳",bud:"ตามชิ้น",rat:"4.7⭐",img:"💍"},
-  shop_tta:{t:"TTA/BINTAGE",d:"เสื้อผ้า Vintage & Thrift",cat:"shopping",z:"HC",addr:"Da Nang",lat:16.059,lng:108.216,pay:"💵/💳",bud:"ตามชิ้น",rat:"4.5⭐",img:"👚"},
-  shop_han:{t:"Chợ Hàn",d:"ตลาดกลางเมือง ของฝาก ต่อราคาได้!",cat:"shopping",z:"HC",addr:"119 Trần Phú",lat:16.0618,lng:108.2222,pay:"💵เท่านั้น",bud:"ตามชิ้น",rat:"4.1⭐",img:"🏪"},
-  act_temple:{t:"Chùa Linh Ứng",d:"พระพุทธรูป67m วิวทะเล",cat:"activity",z:"NHS",addr:"Ngũ Hành Sơn",lat:16.0302,lng:108.2636,pay:"🆓ฟรี",bud:"ฟรี",rat:"4.6⭐",img:"🙏"},
-  act_ice:{t:"Recharged Ice Bath",d:"Ice Bath+Sauna+Steam ใช้ทั้งวัน",cat:"activity",z:"ST",addr:"15 Mỹ Khê 6",lat:16.0589,lng:108.2458,pay:"💳/💵",bud:"~700k₫(~980฿)",rat:"4.8⭐",img:"🧊"},
-  act_spa:{t:"Babylon Spa",d:"Massage+Shampoo ใกล้ Mỹ Khê",cat:"activity",z:"ST",addr:"30 Hà Bổng",lat:16.0595,lng:108.246,pay:"💳/💵/Klook",bud:"200-500k₫(~490฿)",rat:"4.7⭐",img:"💆"},
-  act_beach:{t:"My Khe Beach",d:"เดินชิลริมหาด Sunset",cat:"activity",z:"ST",addr:"My Khe",lat:16.058,lng:108.248,pay:"🆓",bud:"ฟรี",rat:"4.7⭐",img:"🏖️"},
-  act_kala:{t:"Kalà Kalà",d:"Free Entry! สระ DJ 8AM-2AM",cat:"activity",z:"NHS",addr:"51 Võ Nguyên Giáp",lat:16.0465,lng:108.2415,pay:"💳/💵",bud:"200-500k₫(~490฿)",rat:"4.3⭐",img:"🎵"},
-  act_hoian:{t:"Hội An",d:"~40น. UNESCO โคมไฟ tailor",cat:"activity",z:"HA",addr:"Hội An ~30km",lat:15.8801,lng:108.338,opt:true,pay:"Grab150k/เข้า120k₫",bud:"500k-1M₫(~1k฿)",rat:"4.8⭐",img:"🏮"},
-  act_marble:{t:"Marble Mountains",d:"ภูเขาหินอ่อน ถ้ำ วิวpanorama",cat:"activity",z:"NHS",addr:"Ngũ Hành Sơn",lat:16.003,lng:108.263,pay:"เข้า40k+ลิฟท์15k₫",bud:"55-100k₫(~100฿)",rat:"4.5⭐",img:"🏔️"},
-  act_dragon:{t:"Dragon Fire Show",d:"Sat-Sun 21:00 ฟรี! มังกรพ่นไฟ",cat:"activity",z:"HC",addr:"Dragon Bridge",lat:16.0611,lng:108.2277,pay:"🆓",bud:"ฟรี",rat:"4.6⭐",img:"🐉"},
-  night_sontra:{t:"Son Tra Street Food",d:"ถนนคนเดิน BBQ ทะเล",cat:"nightlife",z:"ST",addr:"Son Tra",lat:16.065,lng:108.24,pay:"💵เท่านั้น",bud:"100-200k₫(~210฿)",rat:"4.3⭐",img:"🍢"},
-  night_buffalo:{t:"Buffalo Beer",d:"ร้านดื่มกลางคืน สนุก",cat:"nightlife",z:"ST",addr:"Buffalo Beer",lat:16.062,lng:108.244,pay:"💵/💳",bud:"100-250k₫(~245฿)",rat:"4.2⭐",img:"🍺"},
-  night_sky36:{t:"Sky36 Rooftop",d:"สูงสุดDa Nang วิว360° DJ",cat:"nightlife",z:"HC",addr:"36 Bạch Đằng",lat:16.0615,lng:108.2245,pay:"💳",bud:"200-500k₫(~490฿)",rat:"4.4⭐",img:"🌃"},
-  // HOTEL / REST
-  rest_lahome:{t:"🏨 กลับ Lahome พักผ่อน",d:"กลับโรงแรมพัก อาบน้ำ เปลี่ยนชุด ชาร์จแบต หรืองีบ — ใกล้หาด My Khe 4 นาทีเดิน",cat:"activity",z:"ST",addr:"Lahome, Phước Mỹ, Sơn Trà",lat:16.06,lng:108.246,pay:"—",bud:"ฟรี (ที่พัก)",rat:"4.5⭐",img:"🏨"},
-  // BAKERIES (อยู่ในหมวดคาเฟ่)
-  cafe_marou:{t:"Maison Marou",d:"Chocolate+Bakery สุดฟิน! ช็อกโกแลตเวียดนามแท้ ครัวซองค์ เค้ก Cacao drink",cat:"cafe",z:"HC",addr:"155 Trần Phú, Hải Châu",lat:16.0612,lng:108.2208,pay:"💳/💵",bud:"60-120k₫(~120฿)",rat:"4.6⭐",img:"🍫"},
-  cafe_wonder:{t:"Wonderlust",d:"Café+Bakery+Souvenir Shop! Salt Coffee ดัง ขนมปังโฮมเมด ของฝากน่ารัก",cat:"cafe",z:"ST",addr:"36 An Thượng 4, Ngũ Hành Sơn",lat:16.0520,lng:108.2420,pay:"💳/💵",bud:"40-80k₫(~80฿)",rat:"4.5⭐",img:"🧁"},
-  cafe_cong:{t:"Cộng Cà Phê",d:"เชน Retro Communist-themed ชื่อดัง! Coconut Coffee ต้องลอง วิวแม่น้ำ Hàn",cat:"cafe",z:"HC",addr:"96 Bạch Đằng, Hải Châu",lat:16.0620,lng:108.2242,pay:"💳/💵",bud:"35-55k₫(~55฿)",rat:"4.4⭐",img:"⭐"},
-  cafe_dreamer:{t:"Dreamer Café",d:"สวนลับ Rustic garden สไตล์ Camper Bar — Beer+Cider+Coffee โรแมนติก",cat:"cafe",z:"ST",addr:"230 Nguyễn Công Trứ, Sơn Trà",lat:16.0640,lng:108.2380,pay:"💵/💳",bud:"35-60k₫(~60฿)",rat:"4.6⭐",img:"🌿"},
-  // MORE ACTIVITIES
-  act_sontramarina:{t:"Son Tra Marina",d:"มินิ Santorini สีขาว-ฟ้า วิวเรือ+ทะเล ร้านกาแฟ+ค็อกเทล",cat:"activity",z:"ST",addr:"Lot 12 Võ Nguyên Giáp, Sơn Trà",lat:16.0650,lng:108.2470,pay:"💳/💵",bud:"80-200k₫(~180฿)",rat:"4.3⭐",img:"⛵"},
-  act_lovebridge:{t:"Love Lock Bridge",d:"สะพานกุญแจรัก ริมแม่น้ำ Hàn ถ่ายรูปสวย เดินเล่นช่วงเย็น",cat:"activity",z:"HC",addr:"Trần Hưng Đạo, Sơn Trà",lat:16.0630,lng:108.2285,pay:"🆓",bud:"ฟรี",rat:"4.3⭐",img:"🔐"},
-  // MORE SHOPPING
-  food_comga:{t:"Cơm Gà Bà Buội",d:"ข้าวไก่ Da Nang สูตรดั้งเดิม! ข้าวขมิ้น ไก่ฉีก น้ำจิ้มเด็ด",cat:"food",z:"HC",addr:"22 Thái Phiên",lat:16.0595,lng:108.2148,ft:"🍗Cơm Gà",pay:"💵เท่านั้น",bud:"40-60k₫(~60฿)",rat:"4.5⭐",img:"🍗"},
-  shop_anthuong:{t:"An Thượng Fashion District",d:"ย่านแฟชั่นริมหาด! มี Boutique + Beachwear + Handcraft ร้านเยอะมาก 👫ชาย+หญิง",cat:"shopping",z:"NHS",addr:"An Thượng, Ngũ Hành Sơn",lat:16.0520,lng:108.2420,pay:"💵/💳บางร้าน",bud:"100k-500k₫(~140-700฿)",rat:"4.4⭐",img:"🏖️"},
-  shop_salavi:{t:"Salavi (Korean Fashion)",d:"แฟชั่นเกาหลี-ญี่ปุ่น 20+ ปี! เสื้อ กางเกง เดรส ราคาดี 👩สไตล์น่ารัก เกาหลี 59-300k₫",cat:"shopping",z:"HC",addr:"46 Chi Lăng, Hải Châu",lat:16.0605,lng:108.2195,pay:"💵/💳",bud:"59-300k₫(~80-420฿)",rat:"5.0⭐",img:"🇰🇷"},
-  shop_bovintage:{t:"Bò Vintage",d:"Vintage ชาย+หญิง! เสื้อผ้ามือสอง Japan/Korea คุณภาพดี มีเซลบ่อย 👫Unisex",cat:"shopping",z:"HC",addr:"Hải Châu, Da Nang",lat:16.0585,lng:108.2140,pay:"💵",bud:"50-200k₫(~70-280฿)",rat:"4.5⭐",img:"👔"},
-  shop_gocnho:{t:"Góc Nhỏ Vintage",d:"Vintage Japan/Korea ผ้าบาง ใส่สบาย สไตล์ Sweet+Feminine 👩หญิง",cat:"shopping",z:"HC",addr:"143/18 Nguyễn Chí Thanh",lat:16.0575,lng:108.2135,pay:"💵",bud:"80-250k₫(~110-350฿)",rat:"4.6⭐",img:"🌸"},
-  shop_outstanda:{t:"Outstanda Handcraft",d:"เครื่องประดับ+ของฝาก Handmade! ต่างหู Polymer Clay สมุด ถุงผ้า 👩หญิง",cat:"shopping",z:"NHS",addr:"An Thượng, Ngũ Hành Sơn",lat:16.0522,lng:108.2418,pay:"💵",bud:"100-130k₫(~140-180฿)",rat:"4.7⭐",img:"🎨"},
-  shop_rap:{t:"RẬP (Local Designer)",d:"แบรนด์เวียดนามดีไซน์สวย Elegant+Minimal+ดูดี ผ้าคุณภาพ 👩หญิง",cat:"shopping",z:"HC",addr:"116 Lê Duẩn, Hải Châu",lat:16.0590,lng:108.2110,pay:"💳/💵",bud:"300k-2M₫(~420-2.8k฿)",rat:"4.5⭐",img:"✂️"},
-  // MORE NIGHTLIFE (ชิลๆ ไม่ใช่ผับ)
-  night_bachdang:{t:"Bạch Đằng Walking Street",d:"ถนนคนเดินริมแม่น้ำ Hàn! เดินเล่นตอนเย็น วิวสะพาน+ไฟสวย ฟรี",cat:"nightlife",z:"HC",addr:"Bạch Đằng, Hải Châu",lat:16.0617,lng:108.2240,pay:"🆓",bud:"ฟรี (ซื้ออาหาร/เครื่องดื่มเพิ่ม)",rat:"4.5⭐",img:"🌉"},
-  night_7bridges:{t:"7 Bridges Brewing",d:"Craft beer ท้องถิ่น! Rooftop วิว Dragon Bridge ชิลมาก รางวัล Best Beer in Asia",cat:"nightlife",z:"ST",addr:"An Thượng, Sơn Trà",lat:16.0530,lng:108.2415,pay:"💳/💵",bud:"80-180k₫(~110-250฿)",rat:"4.6⭐",img:"🍻"},
-  night_brilliant:{t:"Brilliant Top Bar",d:"Rooftop bar เงียบสงบ วิวHan River+Dragon Bridge Happy Hour 5PM ไม่ดัง นั่งคุยสบาย",cat:"nightlife",z:"HC",addr:"Brilliant Hotel, 162 Bạch Đằng",lat:16.0615,lng:108.2250,pay:"💳/💵",bud:"120-300k₫(~170-420฿)",rat:"4.4⭐",img:"🌆"},
-  night_anthuong:{t:"An Thượng Night Market",d:"ตลาดกลางคืนย่าน Expat! อาหารนานาชาติ Craft beer บรรยากาศสบาย",cat:"nightlife",z:"NHS",addr:"An Thượng, Ngũ Hành Sơn",lat:16.0520,lng:108.2418,pay:"💵",bud:"100-250k₫(~140-350฿)",rat:"4.3⭐",img:"🏮"},
+// Place catalog — { t (title), th/en (description), cat, z (zone), addr, lat, lng, pay, bud, rat, img }
+window.P = {
+  cafe_dom:{hrs:"7:00-19:00 (ปิดจันทร์)",t:"Đốm Café",th:"Retro มีแมว+หมา 7:00-19:00 ปิดจันทร์",en:"Retro café with cats & dogs · 7-7 closed Mon",cat:"cafe",z:"HC",addr:"22 Lê Quý Đôn",lat:16.0596,lng:108.2178,pay:"💵/💳",bud:"30-45k₫",rat:"4.9",img:"🐱"},
+  cafe_light:{hrs:"7:30-22:00",t:"Lighthouse",th:"Industrial Best Flat White",en:"Industrial · best flat white in Da Nang",cat:"cafe",z:"ST",addr:"12 Dương Đình Nghệ",lat:16.0636,lng:108.2459,pay:"💳/💵",bud:"50-80k₫",rat:"4.5",img:"☕"},
+  cafe_tan:{hrs:"7:00-22:00",t:"tan.",th:"โมเดิร์น คลาสสิก สวนเขตร้อน",en:"Modern-classic · tropical garden",cat:"cafe",z:"HC",addr:"10 Nguyễn Thiện Thuật",lat:16.0621,lng:108.2177,pay:"💳/💵",bud:"40-70k₫",rat:"4.6",img:"🌿"},
+  cafe_ala:{hrs:"7:30-17:30",t:"Àla Cafe",th:"Specialty Roastery สาขา Hội An",en:"Specialty roastery (Hội An branch)",cat:"cafe",z:"HC",addr:"K113/27 Nguyễn Chí Thanh",lat:16.0575,lng:108.2138,pay:"💳/💵",bud:"50-130k₫",rat:"4.8",img:"🏆"},
+  cafe_xliii:{t:"XLIII Coffee",th:"Premium Specialty ระดับ Connoisseur",en:"Premium specialty · connoisseur tier",cat:"cafe",z:"NHS",addr:"124 Yên Khê 1",lat:16.0528,lng:108.2301,pay:"💳",bud:"70-200k₫",rat:"4.7",img:"🎯"},
+  cafe_nam:{hrs:"6:00-23:00",t:"NAM House",th:"บ้านเวียดนาม 90s Egg/Salt Coffee",en:"90s Vietnamese house · egg & salt coffee",cat:"cafe",z:"HC",addr:"15/1 Lê Hồng Phong",lat:16.0588,lng:108.2095,pay:"💵",bud:"25-50k₫",rat:"4.5",img:"🏚️"},
+  cafe_marou:{hrs:"8:00-22:00",t:"Maison Marou",th:"ช็อกโกแลต+เบเกอรี่ ครัวซองค์เด็ด",en:"Vietnamese chocolate & bakery",cat:"cafe",z:"HC",addr:"155 Trần Phú",lat:16.0612,lng:108.2208,pay:"💳/💵",bud:"60-120k₫",rat:"4.6",img:"🍫"},
+  cafe_wonder:{t:"Wonderlust",th:"คาเฟ่+เบเกอรี่+ของฝาก Salt Coffee",en:"Café + bakery + souvenir shop",cat:"cafe",z:"ST",addr:"36 An Thượng 4",lat:16.0520,lng:108.2420,pay:"💳/💵",bud:"40-80k₫",rat:"4.5",img:"🧁"},
+  cafe_cong:{hrs:"7:00-23:00",t:"Cộng Cà Phê",th:"เชน Retro Coconut Coffee วิวแม่น้ำ",en:"Retro chain · coconut coffee · river view",cat:"cafe",z:"HC",addr:"96 Bạch Đằng",lat:16.0620,lng:108.2242,pay:"💳/💵",bud:"35-55k₫",rat:"4.4",img:"⭐"},
+  cafe_dreamer:{t:"Dreamer Café",th:"สวนลับ Rustic ดื่มชิล",en:"Rustic hidden garden · beer & coffee",cat:"cafe",z:"ST",addr:"230 Nguyễn Công Trứ",lat:16.0640,lng:108.2380,pay:"💵/💳",bud:"35-60k₫",rat:"4.6",img:"🌿"},
+  food_banhxeo:{hrs:"10:00-21:00",t:"Bánh Xèo Bà Dưỡng",th:"บั๋นแซวตำนาน แป้งกรอบ ไส้กุ้ง-หมู",en:"Legendary crispy crepes · shrimp & pork",cat:"food",z:"HC",addr:"280/23 Hoàng Diệu",lat:16.0576,lng:108.2136,pay:"💵",bud:"50-80k₫",rat:"4.3",img:"🥞"},
+  food_bepcuon:{hrs:"10:00-22:00",t:"BepCuon",th:"Michelin ม้วนผัก กุ้งบอเทอร์",en:"Michelin-listed · fresh rolls",cat:"food",z:"ST",addr:"31 Trần Bạch Đằng",lat:16.0608,lng:108.2466,pay:"💳/💵",bud:"100-200k₫",rat:"4.5",img:"🌯"},
+  food_moc:{t:"Hải sản Mộc quán",th:"Michelin เลือกซีฟู้ดจากแท้งค์",en:"Michelin seafood · pick from tank",cat:"food",z:"ST",addr:"26 Tô Hiến Thành",lat:16.061,lng:108.2445,pay:"💳/💵",bud:"300-500k₫",rat:"4.6",img:"🦞"},
+  food_trihang:{t:"Hải Sản Trí Hằng",th:"ซีฟู้ดท้องถิ่น ซอสจิ้มเด็ด",en:"Local seafood · killer dipping sauce",cat:"food",z:"ST",addr:"84 Cao Bá Quát",lat:16.0645,lng:108.2392,pay:"💵/💳",bud:"200-400k₫",rat:"4.4",img:"🦀"},
+  food_banhmi:{t:"Bánh mì Maia",th:"Street food ริมทาง Maia Beach",en:"Street bánh mì by Maia Beach Bar",cat:"food",z:"NHS",addr:"284 Võ Nguyên Giáp",lat:16.043,lng:108.241,pay:"💵",bud:"20-30k₫",rat:"4.2",img:"🥖"},
+  food_phuhong:{t:"Quán Phú Hồng",th:"อาหารท้องถิ่น Da Nang",en:"Local Da Nang home cooking",cat:"food",z:"HC",addr:"Da Nang",lat:16.058,lng:108.215,pay:"💵",bud:"80-150k₫",rat:"4.3",img:"🥢"},
+  food_pizza:{hrs:"10:00-22:00",t:"Pizza 4P's",th:"Japanese-Italian Burrata วิวแม่น้ำ",en:"Japanese-Italian · burrata · river view",cat:"food",z:"HC",addr:"74 Bạch Đằng",lat:16.0621,lng:108.224,pay:"💳/💵",bud:"200-400k₫",rat:"4.5",img:"🍕"},
+  food_madamelan:{t:"Madame Lan",th:"เวียดนามริมแม่น้ำ เมนูเยอะ",en:"Vietnamese · riverside · huge menu",cat:"food",z:"HC",addr:"4 Bạch Đằng",lat:16.0617,lng:108.2237,pay:"💳/💵",bud:"150-300k₫",rat:"4.3",img:"🍲"},
+  food_miquang:{hrs:"6:30-21:00",t:"Mì Quảng 1A",th:"หมี่กวางอร่อยสุด Da Nang แท้",en:"Best mì quảng in town",cat:"food",z:"HC",addr:"1 Hải Phòng",lat:16.0598,lng:108.2175,pay:"💵",bud:"35-60k₫",rat:"4.4",img:"🍜"},
+  food_comga:{t:"Cơm Gà Bà Buội",th:"ข้าวไก่ Da Nang สูตรดั้งเดิม",en:"Heritage chicken rice",cat:"food",z:"HC",addr:"22 Thái Phiên",lat:16.0595,lng:108.2148,pay:"💵",bud:"40-60k₫",rat:"4.5",img:"🍗"},
+  shop_phan:{t:"Phan Châu Trinh St.",th:"ถนนช้อปปิ้ง+ร้าน Vintage",en:"Shopping street + vintage stores",cat:"shopping",z:"HC",addr:"Phan Châu Trinh",lat:16.0595,lng:108.2155,pay:"💵/💳",bud:"varies",rat:"4.3",img:"👗"},
+  shop_hana:{t:"Hana 34 Jewelry",th:"เครื่องประดับ Vintage น่ารัก",en:"Cute vintage jewellery",cat:"shopping",z:"ST",addr:"Hana 34",lat:16.063,lng:108.24,pay:"💵/💳",bud:"varies",rat:"4.7",img:"💍"},
+  shop_tta:{t:"TTA / BINTAGE",th:"เสื้อผ้า Vintage & Thrift",en:"Vintage & thrift apparel",cat:"shopping",z:"HC",addr:"Da Nang",lat:16.059,lng:108.216,pay:"💵/💳",bud:"varies",rat:"4.5",img:"👚"},
+  shop_han:{t:"Chợ Hàn Market",th:"ตลาดกลางเมือง ของฝาก ต่อราคาได้",en:"Central market · souvenirs · haggle",cat:"shopping",z:"HC",addr:"119 Trần Phú",lat:16.0618,lng:108.2222,pay:"💵",bud:"varies",rat:"4.1",img:"🏪"},
+  shop_anthuong:{t:"An Thượng District",th:"ย่านแฟชั่นริมหาด Boutique+Beachwear",en:"Beachfront fashion district",cat:"shopping",z:"NHS",addr:"An Thượng",lat:16.0520,lng:108.2420,pay:"💵/💳",bud:"100-500k₫",rat:"4.4",img:"🏖️"},
+  shop_salavi:{t:"Salavi (Korean)",th:"แฟชั่นเกาหลี-ญี่ปุ่น 20+ ปี",en:"Korean-Japanese fashion · 20+ yrs",cat:"shopping",z:"HC",addr:"46 Chi Lăng",lat:16.0605,lng:108.2195,pay:"💵/💳",bud:"59-300k₫",rat:"5.0",img:"🇰🇷"},
+  shop_bovintage:{t:"Bò Vintage",th:"Vintage ชาย+หญิง JP/KR",en:"Unisex JP/KR vintage",cat:"shopping",z:"HC",addr:"Hải Châu",lat:16.0585,lng:108.2140,pay:"💵",bud:"50-200k₫",rat:"4.5",img:"👔"},
+  shop_gocnho:{t:"Góc Nhỏ Vintage",th:"Vintage Sweet+Feminine",en:"Sweet feminine vintage",cat:"shopping",z:"HC",addr:"143 Nguyễn Chí Thanh",lat:16.0575,lng:108.2135,pay:"💵",bud:"80-250k₫",rat:"4.6",img:"🌸"},
+  shop_outstanda:{t:"Outstanda Handcraft",th:"เครื่องประดับ Handmade",en:"Handmade jewellery & gifts",cat:"shopping",z:"NHS",addr:"An Thượng",lat:16.0522,lng:108.2418,pay:"💵",bud:"100-130k₫",rat:"4.7",img:"🎨"},
+  shop_rap:{t:"RẬP Designer",th:"แบรนด์เวียดนาม Elegant Minimal",en:"Local elegant minimal designer",cat:"shopping",z:"HC",addr:"116 Lê Duẩn",lat:16.0590,lng:108.2110,pay:"💳/💵",bud:"300k-2M₫",rat:"4.5",img:"✂️"},
+  act_temple:{t:"Chùa Linh Ứng",th:"พระพุทธรูป 67m วิวทะเล",en:"67m Buddha · sea panorama",cat:"activity",z:"NHS",addr:"Ngũ Hành Sơn",lat:16.0302,lng:108.2636,pay:"🆓",bud:"free",rat:"4.6",img:"🙏"},
+  act_ice:{hrs:"8:00-22:00",t:"Recharged Ice Bath",th:"Ice Bath+Sauna ใช้ทั้งวัน",en:"Ice bath + sauna · all-day pass",cat:"activity",z:"ST",addr:"15 Mỹ Khê 6",lat:16.0589,lng:108.2458,pay:"💳/💵",bud:"~700k₫",rat:"4.8",img:"🧊"},
+  act_spa:{hrs:"9:00-23:00",t:"Babylon Spa",th:"Massage+Shampoo ใกล้ Mỹ Khê",en:"Massage + shampoo near My Khe",cat:"activity",z:"ST",addr:"30 Hà Bổng",lat:16.0595,lng:108.246,pay:"💳/💵",bud:"200-500k₫",rat:"4.7",img:"💆"},
+  act_beach:{t:"My Khe Beach",th:"เดินชิลริมหาด Sunset",en:"Sunset stroll on My Khe",cat:"activity",z:"ST",addr:"My Khe",lat:16.058,lng:108.248,pay:"🆓",bud:"free",rat:"4.7",img:"🏖️"},
+  act_kala:{hrs:"8:00-2:00",t:"Kalà Kalà",th:"Free Entry สระ DJ",en:"Free entry pool club · DJs",cat:"activity",z:"NHS",addr:"51 Võ Nguyên Giáp",lat:16.0465,lng:108.2415,pay:"💳/💵",bud:"200-500k₫",rat:"4.3",img:"🎵"},
+  act_hoian:{t:"Hội An Old Town",th:"UNESCO โคมไฟ tailor",en:"UNESCO · lanterns · tailors",cat:"activity",z:"HA",addr:"Hội An ~30km",lat:15.8801,lng:108.338,opt:true,pay:"Grab+entry",bud:"500k-1M₫",rat:"4.8",img:"🏮"},
+  act_marble:{t:"Marble Mountains",th:"ภูเขาหินอ่อน ถ้ำ วิวพาโนรามา",en:"Marble hills · caves · panorama",cat:"activity",z:"NHS",addr:"Ngũ Hành Sơn",lat:16.003,lng:108.263,pay:"💵",bud:"55-100k₫",rat:"4.5",img:"🏔️"},
+  act_dragon:{hrs:"Sat-Sun 21:00",t:"Dragon Fire Show",th:"Sat-Sun 21:00 ฟรี มังกรพ่นไฟ",en:"Sat/Sun 21:00 · free fire show",cat:"activity",z:"HC",addr:"Dragon Bridge",lat:16.0611,lng:108.2277,pay:"🆓",bud:"free",rat:"4.6",img:"🐉"},
+  act_sontramarina:{t:"Son Tra Marina",th:"มินิ Santorini สีขาว-ฟ้า",en:"Mini Santorini · white & blue",cat:"activity",z:"ST",addr:"Lot 12 Võ Nguyên Giáp",lat:16.0650,lng:108.2470,pay:"💳/💵",bud:"80-200k₫",rat:"4.3",img:"⛵"},
+  act_lovebridge:{t:"Love Lock Bridge",th:"สะพานกุญแจรัก ริมแม่น้ำ Hàn",en:"Love-lock bridge by Hàn river",cat:"activity",z:"HC",addr:"Trần Hưng Đạo",lat:16.0630,lng:108.2285,pay:"🆓",bud:"free",rat:"4.3",img:"🔐"},
+  rest_lahome:{t:"Lahome (rest)",th:"กลับโรงแรมพัก",en:"Back to hotel · rest & recharge",cat:"activity",z:"ST",addr:"Lahome, Phước Mỹ",lat:16.06,lng:108.246,pay:"—",bud:"—",rat:"4.5",img:"🏨"},
+  night_sontra:{t:"Son Tra Street Food",th:"ถนนคนเดิน BBQ ทะเล",en:"Walking street BBQ + seafood",cat:"nightlife",z:"ST",addr:"Son Tra",lat:16.065,lng:108.24,pay:"💵",bud:"100-200k₫",rat:"4.3",img:"🍢"},
+  night_buffalo:{hrs:"16:00-1:00",t:"Buffalo Beer",th:"ร้านดื่มกลางคืน สนุก",en:"Lively night drink spot",cat:"nightlife",z:"ST",addr:"Buffalo Beer",lat:16.062,lng:108.244,pay:"💵/💳",bud:"100-250k₫",rat:"4.2",img:"🍺"},
+  night_sky36:{hrs:"17:00-2:00",t:"Sky36 Rooftop",th:"สูงสุด Da Nang วิว 360°",en:"Highest rooftop · 360° view",cat:"nightlife",z:"HC",addr:"36 Bạch Đằng",lat:16.0615,lng:108.2245,pay:"💳",bud:"200-500k₫",rat:"4.4",img:"🌃"},
+  night_bachdang:{t:"Bạch Đằng Walk",th:"ถนนคนเดินริมแม่น้ำ Hàn",en:"Riverside walking street",cat:"nightlife",z:"HC",addr:"Bạch Đằng",lat:16.0617,lng:108.2240,pay:"🆓",bud:"free",rat:"4.5",img:"🌉"},
+  night_7bridges:{hrs:"15:00-0:00",t:"7 Bridges Brewing",th:"Craft beer Rooftop วิว Dragon",en:"Award-winning craft brewery",cat:"nightlife",z:"ST",addr:"An Thượng",lat:16.0530,lng:108.2415,pay:"💳/💵",bud:"80-180k₫",rat:"4.6",img:"🍻"},
+  night_brilliant:{hrs:"17:00-0:00 (HH 17-19)",t:"Brilliant Top Bar",th:"Rooftop เงียบสงบ Happy Hour 5PM",en:"Quiet rooftop · happy hour 5pm",cat:"nightlife",z:"HC",addr:"162 Bạch Đằng",lat:16.0615,lng:108.2250,pay:"💳/💵",bud:"120-300k₫",rat:"4.4",img:"🌆"},
+  night_anthuong:{t:"An Thượng Night Mkt",th:"ตลาดกลางคืนย่าน Expat",en:"Expat-area night market",cat:"nightlife",z:"NHS",addr:"An Thượng",lat:16.0520,lng:108.2418,pay:"💵",bud:"100-250k₫",rat:"4.3",img:"🏮"},
 };
 
-function dist(a,b){if(!a?.lat||!b?.lat)return null;const R=6371,dL=(b.lat-a.lat)*Math.PI/180,dG=(b.lng-a.lng)*Math.PI/180,x=Math.sin(dL/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dG/2)**2;return Math.round(2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*10)/10;}
+window.DUR={cafe_dom:45,cafe_light:45,cafe_tan:45,cafe_ala:45,cafe_xliii:60,cafe_nam:45,cafe_marou:45,cafe_wonder:45,cafe_cong:40,cafe_dreamer:45,food_banhxeo:60,food_bepcuon:60,food_moc:75,food_trihang:75,food_banhmi:20,food_phuhong:60,food_pizza:75,food_madamelan:75,food_miquang:45,food_comga:45,shop_phan:90,shop_hana:60,shop_tta:90,shop_han:90,shop_anthuong:120,shop_salavi:60,shop_bovintage:60,shop_gocnho:60,shop_outstanda:45,shop_rap:60,act_temple:60,act_ice:120,act_spa:90,act_beach:120,act_kala:240,act_hoian:180,act_marble:90,act_dragon:30,act_sontramarina:60,act_lovebridge:30,rest_lahome:60,night_sontra:90,night_buffalo:120,night_sky36:120,night_bachdang:60,night_7bridges:90,night_brilliant:90,night_anthuong:90};
 
-const INIT=[
-  {id:1,date:"29 May",dl:"ศุกร์",th:"Arrive + City Explore",ti:"🏙️",c:"#FFD166",
-   wake:"03:30",wakeNote:"😴 วันเดียวที่ต้องตื่นเช้า!",leave:"05:10",bath:"ผญ①03:30-04:05 → ผช04:05-04:25 → ผญ②04:25-05:00",
-   weather:{icon:"☀️",temp:"26-33°C",rain:"20%",desc:"แดดจัด ร้อนชื้น ลมทะเลสบาย",uv:"สูงมาก🧴"},
-   outfit:{style:"Casual City Walk",colors:"🤍ขาว + 🩵ฟ้า + เบจ",desc:"เสื้อยืดสีอ่อน กางเกงผ้า ผ้าใบ สะพายกระเป๋าผ้า",tip:"แว่นกันแดด+หมวก+SPF50+"},
+window.INIT=[
+  {id:1,date:"29 May",dl:{th:"ศุกร์",en:"Fri"},th:{th:"เดินทาง+สำรวจเมือง",en:"Arrive + Explore"},ti:"✈️",
+   c:"#FFD166", c2:"#FFB833", hero:"sunset",
+   wake:"03:30",wakeNoteEn:"Only early morning!",wakeNoteTh:"วันเดียวที่ตื่นเช้า",leave:"05:10",
+   bath:"F① 03:30 → M 04:05 → F② 04:25",
+   weather:{icon:"☀️",temp:"26-33°C",rain:"20%",descTh:"แดดจัด ร้อนชื้น ลมทะเลสบาย",descEn:"Sunny · humid · nice sea breeze",uv:"สูงมาก"},
+   outfit:{styleEn:"Casual City Walk",styleTh:"เดินเมืองสบาย",colors:"🤍 ขาว + 🩵 ฟ้า + เบจ",
+     descTh:"เสื้อยืดสีอ่อน กางเกงผ้า ผ้าใบ สะพายกระเป๋าผ้า",descEn:"Light tee · soft pants · sneakers · tote bag",
+     tipTh:"แว่นกันแดด+หมวก+ครีมกันแดด SPF50+",tipEn:"Sunglasses + hat + sunscreen SPF50+"},
    acts:[
-    {fix:true,id:"p1",time:"03:30",t:"🚿 ห้องน้ำ BKK",d:"ผญ①03:30-04:05 → ผช04:05-04:25 → ผญ②04:25-05:00",lat:13.75,lng:100.52},
-    {fix:true,id:"p1b",time:"05:10",t:"🚖 ออก→สุวรรณภูมิ",d:"~45-60น. ถึง~06:00",lat:13.69,lng:100.75},
-    {fix:true,id:"p1c",time:"06:00",t:"🛫 BKK เช็คอิน+ตม.",d:"2ชม.ก่อน → VietJet+โหลดกระเป๋า+ตม.ไทย → ✈️~08:10",lat:13.69,lng:100.75},
-    {fix:true,id:"f1",time:"09:55",t:"✈️ ถึง DAD!",d:"บิน1ชม.45น. → รับกระเป๋า+ตม.เวียดนาม ~30น.",lat:16.0559,lng:108.199},
-    {fix:true,id:"f2",time:"10:30",t:"🏨 Check-in Lahome",d:"Grab~6km~15น.(~80-100k₫)",lat:16.06,lng:108.246},
+    {fix:true,id:"p1",time:"03:30",t:"🚿 BKK shower rota",th:"F①03:30→M04:05→F②04:25",en:"F①03:30→M04:05→F②04:25",lat:13.75,lng:100.52},
+    {fix:true,id:"p1b",time:"05:10",t:"🚖 → Suvarnabhumi",th:"~45-60น. ถึง~06:00",en:"~45-60 min · arrive ~06:00",lat:13.69,lng:100.75},
+    {fix:true,id:"p1c",time:"06:00",t:"🛫 BKK check-in",th:"VietJet+โหลด+ตม. → ✈️~08:10",en:"VietJet · bags · immigration → 08:10",lat:13.69,lng:100.75},
+    {fix:true,id:"f1",time:"09:55",t:"✈️ Land DAD",th:"บิน1ชม.45น.+กระเป๋า~30น.",en:"1h45 flight + bags ~30 min",lat:16.0559,lng:108.199},
+    {fix:true,id:"f2",time:"10:30",t:"🏨 Lahome check-in",th:"Grab~15น.(~80-100k₫)",en:"Grab ~15 min (~80-100k₫)",lat:16.06,lng:108.246},
     {pk:"cafe_dom",time:"11:30"},{pk:"food_banhxeo",time:"13:00"},{pk:"shop_phan",time:"14:30"},{pk:"night_sontra",time:"18:30"},
   ]},
-  {id:2,date:"30 May",dl:"เสาร์",th:"Temple+Beach+🐉Fire Show!",ti:"🙏",c:"#06D6A0",
-   wake:"07:30",wakeNote:"ตื่นสบาย☀️",leave:"09:10",bath:"ผญ①07:30-08:05 → ผช08:05-08:25 → ผญ②08:25-09:00",
-   weather:{icon:"☀️",temp:"26-34°C",rain:"15%",desc:"แดดจ้า ท้องฟ้าใส เหมาะวัด+หาด",uv:"สูงมาก🧴"},
-   outfit:{style:"Temple+Beach",colors:"🩵ฟ้า + 🤍ขาว + ครีม",desc:"เสื้อแขนสั้นสีฟ้า + กางเกงขายาวบาง(เข้าวัด) + ชุดว่ายน้ำข้างใน",tip:"ผ้าคลุมไหล่+แตะ+ผ้าเช็ดตัว"},
+  {id:2,date:"30 May",dl:{th:"เสาร์",en:"Sat"},th:{th:"วัด+หาด+โชว์มังกร",en:"Temple + Beach + 🐉Fire"},ti:"🏯",
+   c:"#06D6A0", c2:"#05B384", hero:"ocean",
+   wake:"07:30",wakeNoteTh:"ตื่นสบาย☀️",wakeNoteEn:"Relaxed wake-up",leave:"09:10",
+   bath:"F① 07:30 → M 08:05 → F② 08:25",
+   weather:{icon:"☀️",temp:"26-34°C",rain:"15%",descTh:"แดดจ้า ท้องฟ้าใส เหมาะเที่ยววัด+หาด",descEn:"Sunny · clear · perfect for temple & beach",uv:"สูงมาก"},
+   outfit:{styleEn:"Temple + Beach Casual",styleTh:"วัด+หาด",colors:"🩵 ฟ้า + 🤍 ขาว + ครีม",
+     descTh:"เสื้อแขนสั้นสีฟ้า+กางเกงขายาวบาง(เข้าวัด)+ชุดว่ายน้ำข้างใน",descEn:"Blue tee + light long pants (temple) + swimsuit under",
+     tipTh:"ผ้าคลุมไหล่เข้าวัด+รองเท้าแตะ+ผ้าเช็ดตัว",tipEn:"Temple shawl + sandals + towel"},
    acts:[
-    {fix:true,id:"p2",time:"07:30",t:"🚿 ห้องน้ำ Lahome",d:"ผญ①07:30-08:05→ผช08:05-08:25→ผญ②08:25-09:00→ออก09:10",lat:16.06,lng:108.246},
+    {fix:true,id:"p2",time:"07:30",t:"🚿 Lahome shower",th:"F①07:30→M08:05→F②08:25",en:"F①07:30→M08:05→F②08:25",lat:16.06,lng:108.246},
     {pk:"cafe_light",time:"09:15"},{pk:"act_temple",time:"10:30"},{pk:"food_trihang",time:"12:30"},{pk:"shop_hana",time:"14:30"},{pk:"act_beach",time:"16:00"},{pk:"night_buffalo",time:"19:00"},
     {pk:"act_dragon",time:"21:00"},
   ]},
-  {id:3,date:"31 May",dl:"อาทิตย์",th:"Ice Bath+Beach Party",ti:"🧊",c:"#118AB2",
-   wake:"08:30",wakeNote:"วันสายสุด!🎉",leave:"10:15",bath:"ผญ①08:30-09:05 → ผช09:05-09:25 → ผญ②09:25-10:00",
-   weather:{icon:"🌤️",temp:"27-34°C",rain:"25%",desc:"ส่วนใหญ่แดด อาจฝนช่วงบ่าย",uv:"สูง🧴"},
-   outfit:{style:"Beach Club Chic",colors:"💛เหลืองมัสตาร์ด + 🤍ขาว + มิ้นท์",desc:"ชุดว่ายน้ำ+Cover-up ผ้าบาง+เดรสสั้น/ลินิน — พร้อมถ่ายรูปKalà Kalà",tip:"กันน้ำมือถือ+SPF+หมวกสาน"},
+  {id:3,date:"31 May",dl:{th:"อาทิตย์",en:"Sun"},th:{th:"Ice Bath+Beach Party",en:"Ice Bath + Beach Party"},ti:"🌃",
+   c:"#118AB2", c2:"#0D6E8F", hero:"sand",
+   wake:"08:30",wakeNoteTh:"วันสายสุด!🎉",wakeNoteEn:"Latest start! 🎉",leave:"10:15",
+   bath:"F① 08:30 → M 09:05 → F② 09:25",
+   weather:{icon:"🌤️",temp:"27-34°C",rain:"25%",descTh:"ส่วนใหญ่แดด อาจมีฝนช่วงบ่าย",descEn:"Mostly sunny · possible PM rain",uv:"สูง"},
+   outfit:{styleEn:"Beach Club Chic",styleTh:"Beach Club ชิค",colors:"💛 เหลืองมัสตาร์ด + 🤍 ขาว + มิ้นท์",
+     descTh:"ชุดว่ายน้ำ+Cover-up ผ้าบาง+เดรสสั้นหรือกางเกงลินิน",descEn:"Swimsuit + cover-up + linen dress/shorts",
+     tipTh:"กันน้ำมือถือ+ครีมกันแดด+หมวกสาน",tipEn:"Phone waterproof pouch + SPF + straw hat"},
    acts:[
-    {fix:true,id:"p3",time:"08:30",t:"🚿 ห้องน้ำ Lahome",d:"ผญ①08:30-09:05→ผช09:05-09:25→ผญ②09:25-10:00→ออก10:15",lat:16.06,lng:108.246},
+    {fix:true,id:"p3",time:"08:30",t:"🚿 Lahome shower",th:"F①08:30→M09:05→F②09:25",en:"F①08:30→M09:05→F②09:25",lat:16.06,lng:108.246},
     {pk:"cafe_tan",time:"10:30"},{pk:"shop_tta",time:"11:30"},{pk:"food_bepcuon",time:"12:30"},{pk:"act_ice",time:"14:00"},
-    {fix:true,id:"kc",time:"16:30",t:"🏖️ Kalà Kalà Sunset+Dinner",d:"ว่ายน้ำ1ชม.→🌅Sunset Cocktail 17:30(Happy Hour!)→🍽️Dinner 19:00→ออก~20:30(~4ชม.)",lat:16.0465,lng:108.2415},
+    {fix:true,id:"kc",time:"16:30",t:"🏖️ Kalà Kalà Sunset",th:"ว่ายน้ำ+Sunset Cocktail+Dinner",en:"Swim + sunset cocktail + dinner",lat:16.0465,lng:108.2415},
   ]},
-  {id:4,date:"1 Jun",dl:"จันทร์",th:"Hoi An+Spa+✈️Home",ti:"✨",c:"#EF476F",
-   wake:"07:30",wakeNote:"สบาย ไฟลท์เย็น18:10",leave:"09:10",bath:"ผญ①07:30-08:05 → ผช08:05-08:25 → ผญ②08:25-09:00",
-   weather:{icon:"☀️",temp:"27-33°C",rain:"20%",desc:"แดดสวย วันสุดท้ายสดใส",uv:"สูง🧴"},
-   outfit:{style:"Effortless Travel",colors:"🩷ชมพูพาสเทล + 🤍ขาว + เบจ",desc:"เดรสสั้นสบาย+ผ้าใบ — น่ารักถ่ายรูปHội An+สะดวกขึ้นเครื่อง",tip:"กระเป๋าเล็กcarry-on ready"},
+  {id:4,date:"1 Jun",dl:{th:"จันทร์",en:"Mon"},th:{th:"Hội An+Spa+กลับบ้าน",en:"Hội An + Spa + Home"},ti:"🛬",
+   c:"#EF476F", c2:"#D63B62", hero:"lantern",
+   wake:"07:30",wakeNoteTh:"สบาย ไฟลท์เย็น",wakeNoteEn:"Easy · evening flight",leave:"09:10",
+   bath:"F① 07:30 → M 08:05 → F② 08:25",
+   weather:{icon:"☀️",temp:"27-33°C",rain:"20%",descTh:"แดดสวย วันสุดท้ายสดใส",descEn:"Sunny · bright last day",uv:"สูง"},
+   outfit:{styleEn:"Effortless Travel Look",styleTh:"แต่งสบายขึ้นเครื่อง",colors:"🩷 ชมพูพาสเทล + 🤍 ขาว + เบจ",
+     descTh:"เดรสสั้นสบาย+ผ้าใบ น่ารักถ่ายรูป Hội An+สะดวกขึ้นเครื่อง",descEn:"Easy dress + sneakers · cute for Hội An + flight ready",
+     tipTh:"กระเป๋าเล็กใส่ของขึ้นเครื่อง carry-on ready",tipEn:"Small carry-on bag ready"},
    acts:[
-    {fix:true,id:"p4",time:"07:30",t:"🚿 ห้องน้ำ+แพ็ค",d:"ผญ①07:30-08:05→ผช08:05-08:25→ผญ②08:25-09:00 Check-out ฝากกระเป๋า→ออก09:10",lat:16.06,lng:108.246},
+    {fix:true,id:"p4",time:"07:30",t:"🚿 Shower + pack",th:"F①07:30→M08:05→F②08:25 Check-out",en:"F①07:30→M08:05→F②08:25 Check-out",lat:16.06,lng:108.246},
     {pk:"cafe_ala",time:"09:15"},{pk:"act_hoian",time:"10:30"},{pk:"food_pizza",time:"12:30"},{pk:"act_spa",time:"14:00"},
-    {fix:true,id:"f5",time:"15:45",t:"🧳 รับกระเป๋า→DAD",d:"Grab~6km~15-20น.(~80-100k₫)",lat:16.0559,lng:108.199},
-    {fix:true,id:"f5b",time:"16:05",t:"🛬 DAD เช็คอิน+ตม.",d:"2ชม.ก่อน→VietJet+โหลด+ตม.เวียดนาม+Duty Free",lat:16.0559,lng:108.199},
-    {fix:true,id:"f6",time:"18:10",t:"✈️ กลับBKK ~19:55",d:"VietJet 1ชม.45น. ถึงสุวรรณภูมิ~19:55🌺",lat:13.69,lng:100.75},
+    {fix:true,id:"f5",time:"15:45",t:"🧳 Pickup → DAD",th:"Grab~15-20น.",en:"Grab ~15-20 min",lat:16.0559,lng:108.199},
+    {fix:true,id:"f5b",time:"16:05",t:"🛬 DAD check-in",th:"VietJet+ตม.+Duty Free",en:"VietJet + immigration + duty free",lat:16.0559,lng:108.199},
+    {fix:true,id:"f6",time:"18:10",t:"✈️ → BKK ~19:55",th:"VietJet ถึงสุวรรณภูมิ",en:"VietJet · land Suvarnabhumi 19:55",lat:13.69,lng:100.75},
   ]},
 ];
 
-// Duration in minutes per activity
-const DUR={cafe_dom:45,cafe_light:45,cafe_tan:45,cafe_ala:45,cafe_xliii:60,cafe_nam:45,cafe_marou:45,cafe_wonder:45,cafe_cong:40,cafe_dreamer:45,food_banhxeo:60,food_bepcuon:60,food_moc:75,food_trihang:75,food_banhmi:20,food_phuhong:60,food_pizza:75,food_madamelan:75,food_miquang:45,food_comga:45,shop_phan:90,shop_hana:60,shop_tta:90,shop_han:90,shop_anthuong:120,shop_salavi:60,shop_bovintage:60,shop_gocnho:60,shop_outstanda:45,shop_rap:60,act_temple:60,act_ice:120,act_spa:90,act_beach:120,act_kala:240,act_hoian:180,act_marble:90,act_dragon:30,act_sontramarina:60,act_lovebridge:30,rest_lahome:60,night_sontra:90,night_buffalo:120,night_sky36:120,night_bachdang:60,night_7bridges:90,night_brilliant:90,night_anthuong:90};
+// Packing list — bilingual
+window.PACK_LIST = [
+  {cat:{th:"เอกสาร",en:"Documents"},items:[
+    {th:"พาสปอร์ต+สำเนา",en:"Passport + copy"},
+    {th:"บอร์ดดิ้งพาส",en:"Boarding pass"},
+    {th:"ประกันการเดินทาง",en:"Travel insurance"},
+    {th:"การ์ดธนาคาร 2 ใบ",en:"2× bank cards"},
+    {th:"₫ + ฿ cash",en:"VND + THB cash"},
+  ]},
+  {cat:{th:"อุปกรณ์",en:"Tech"},items:[
+    {th:"มือถือ+ที่ชาร์จ",en:"Phone + charger"},
+    {th:"พาวเวอร์แบงก์",en:"Power bank"},
+    {th:"หัวแปลงปลั๊ก (Type A/C/F)",en:"Travel adapter (A/C/F)"},
+    {th:"หูฟัง",en:"Earbuds"},
+    {th:"กล้อง / GoPro",en:"Camera / GoPro"},
+  ]},
+  {cat:{th:"ชายหาด",en:"Beach"},items:[
+    {th:"ชุดว่ายน้ำ x2",en:"Swimsuit ×2"},
+    {th:"กันแดด SPF50+",en:"Sunscreen SPF50+"},
+    {th:"แว่นกันแดด",en:"Sunglasses"},
+    {th:"หมวก",en:"Sun hat"},
+    {th:"แตะ",en:"Sandals"},
+    {th:"ผ้าเช็ดตัว microfiber",en:"Microfiber towel"},
+  ]},
+  {cat:{th:"ยา & สุขภาพ",en:"Health"},items:[
+    {th:"ยาแก้ปวด/ลดไข้",en:"Painkillers"},
+    {th:"ยาท้อง / ORS",en:"Anti-diarrheal / ORS"},
+    {th:"ยาฉีดยุง",en:"Mosquito spray"},
+    {th:"แผ่นปิดแผล",en:"Bandages"},
+    {th:"แอลกอฮอล์เจล",en:"Hand sanitizer"},
+  ]},
+  {cat:{th:"อื่นๆ",en:"Other"},items:[
+    {th:"ผ้าคลุมเข้าวัด",en:"Temple shawl"},
+    {th:"ถุงผ้าใส่ของช้อป",en:"Tote bag"},
+    {th:"ขวดน้ำ",en:"Water bottle"},
+    {th:"กระเป๋ากันน้ำ",en:"Waterproof pouch"},
+  ]},
+];
 
-function res(a){if(a.pk&&P[a.pk])return{...P[a.pk],id:a.pk,pk:a.pk,time:a.time||"—",dur:DUR[a.pk]||60};return{...a,pk:null,time:a.time||"—",dur:a.dur||30};}
+window.dist = function(a,b){
+  if(!a?.lat||!b?.lat)return null;
+  const R=6371,dL=(b.lat-a.lat)*Math.PI/180,dG=(b.lng-a.lng)*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dG/2)**2;
+  return Math.round(2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*10)/10;
+};
+</script>
+<script type="text/babel">
 
-function Card({a,prev,dayC,onSwap,onUp,onDn,onRemove,onTimeChange}){
-  const[exp,setExp]=useState(false);const[showS,setShowS]=useState(false);const[fCat,setFCat]=useState(null);const[editTime,setEditTime]=useState(false);
-  const r=res(a),p=prev?res(prev):null,km=p?dist(p,r):null;
-  const ci=r.cat&&CATS[r.cat]?CATS[r.cat]:null,cc=ci?ci.c:"#8ecae6";
-  const aCat=fCat||(r.cat&&CATS[r.cat]?r.cat:null);
-  const alts=useMemo(()=>{if(!aCat||!CATS[aCat])return[];return Object.entries(P).filter(([k,v])=>v.cat===aCat&&k!==a.pk).map(([k,v])=>({k,...v,prox:r.z&&v.z===r.z?0:r.z&&NEAR[r.z]?.includes(v.z)?1:2})).sort((x,y)=>x.prox-y.prox);},[aCat,a.pk,r.z]);
-  const mapsQ=encodeURIComponent((r.t||"")+" "+(r.addr||"")+" Da Nang");
-  const mapsPhotoUrl=`https://www.google.com/maps/search/${mapsQ}`;
-  return(<div style={{marginBottom:5}}>
-    {km!==null&&km>0&&<div style={{textAlign:"center",padding:"1px 0",fontSize:9,color:"#bbb"}}>┆<span style={{background:"#f0f0f0",padding:"1px 5px",borderRadius:3,fontWeight:600}}>🚗{km}km</span>┆</div>}
-    <div className="cd" onClick={()=>!a.fix&&setExp(!exp)} style={{background:"rgba(255,255,255,0.92)",borderRadius:12,padding:"9px 11px",border:`1.5px solid ${cc}40`,cursor:a.fix?"default":"pointer"}}>
-      {/* Top row: emoji + info (full width) */}
-      <div style={{display:"flex",alignItems:"center",gap:8}}>
-        <div style={{background:"rgba(0,0,0,0.03)",borderRadius:9,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{r.img?r.img.slice(0,2):ci?.i||"📌"}</div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{display:"flex",alignItems:"center",gap:4,flexWrap:"wrap"}}>
-            {!a.fix&&editTime?<input type="time" defaultValue={r.time!=="—"?r.time:""} autoFocus style={{fontFamily:"'Outfit',sans-serif",fontWeight:700,fontSize:11,color:cc,border:`1.5px solid ${cc}`,borderRadius:5,padding:"2px 4px",width:80,outline:"none"}} onClick={e=>e.stopPropagation()} onBlur={e=>{setEditTime(false);if(e.target.value&&onTimeChange)onTimeChange(e.target.value);}} onKeyDown={e=>{if(e.key==="Enter"){setEditTime(false);if(e.target.value&&onTimeChange)onTimeChange(e.target.value);}}}/>
-            :<span onClick={e=>{if(!a.fix){e.stopPropagation();setEditTime(true);}}} style={{fontWeight:700,fontSize:10,color:cc,background:cc+"12",padding:"2px 6px",borderRadius:4,cursor:a.fix?"default":"pointer"}}>{r.time}{!a.fix&&" ✏️"}</span>}
-            {r.dur&&!a.fix&&<span style={{fontSize:8,color:"#888",background:"#f0f0f0",padding:"1px 5px",borderRadius:3}}>⏱️{r.dur}น.</span>}
-            {r.z&&ZL[r.z]&&<span style={{fontSize:8,color:"#999",background:"#f5f5f5",padding:"1px 5px",borderRadius:3}}>{ZL[r.z]}</span>}
-            {r.rat&&<span style={{fontSize:8,fontWeight:600,color:"#f59e0b",background:"#fef3c7",padding:"1px 5px",borderRadius:3}}>{r.rat}</span>}
-            {r.opt&&<span style={{fontSize:8,fontWeight:600,color:"#ef476f",background:"#ef476f10",padding:"1px 5px",borderRadius:3}}>OPT</span>}
-            {r.ft&&<span style={{fontSize:8,fontWeight:600,color:"#fb8500",background:"#fb850008",padding:"1px 5px",borderRadius:3}}>{r.ft}</span>}
-          </div>
-          <div style={{fontWeight:600,fontSize:13,color:"#1a1a2e",marginTop:2}}>{r.t}</div>
-        </div>
-      </div>
-      {/* Bottom row: action buttons */}
-      {!a.fix&&<div style={{display:"flex",gap:4,marginTop:6,justifyContent:"flex-end"}} onClick={e=>e.stopPropagation()}>
-        <button className="bs" onClick={onUp}>↑</button><button className="bs" onClick={onDn}>↓</button>
-        {a.pk&&<button className="bs" onClick={()=>setShowS(!showS)} style={{background:showS?`${dayC}28`:"#00b4d812",color:showS?dayC:"#00b4d8",fontWeight:700}}>🔄</button>}
-        <button className="bs" onClick={onRemove} style={{background:"#ef476f10",color:"#ef476f",fontSize:11}}>✕</button>
-      </div>}
-      </div>
-      {exp&&!a.fix&&<div style={{marginTop:6,paddingTop:6,borderTop:"1px dashed #e8e8e8",animation:"fi .2s",fontSize:10,color:"#555",lineHeight:1.7}}>
-        {/* Photo section — Google Maps link + styled preview */}
-        {r.addr&&<a href={mapsPhotoUrl} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()}
-          style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,border:"1px solid #e0e0e0",background:"linear-gradient(135deg,#f8f9fa,#e8f0fe)",textDecoration:"none",marginBottom:6,cursor:"pointer"}}>
-          <div style={{fontSize:28,flexShrink:0}}>{r.img||"📍"}</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:10,fontWeight:700,color:"#1a73e8"}}>📸 แตะเพื่อดูภาพจริงบน Google Maps</div>
-            <div style={{fontSize:8,color:"#666",marginTop:1}}>เปิดในแท็บใหม่ → ดูรูปถ่าย รีวิว เส้นทาง ได้เลย</div>
-          </div>
-          <span style={{fontSize:14}}>→</span>
-        </a>}
-        <div>{r.d}</div>
-        <div style={{marginTop:3,display:"flex",flexWrap:"wrap",gap:5}}>
-          <span style={{background:"#e8f5e9",padding:"2px 5px",borderRadius:4,fontSize:9}}>{r.pay||"—"}</span>
-          <span style={{background:"#fff3e0",padding:"2px 5px",borderRadius:4,fontSize:9}}>💰{r.bud||"—"}/คน</span>
-          {r.rat&&<span style={{background:"#fef3c7",padding:"2px 5px",borderRadius:4,fontSize:9}}>📍{r.rat}</span>}
-          {r.dur&&<span style={{background:"#ede9fe",padding:"2px 5px",borderRadius:4,fontSize:9}}>⏱️แนะนำ {r.dur} นาที</span>}
-        </div>
-        <div style={{marginTop:2,fontSize:9,color:"#999"}}>📍{r.addr}</div>
-      </div>}
-    </div>
-    {showS&&<div style={{margin:"3px 0 2px 14px",background:"rgba(255,255,255,0.95)",border:`1.5px solid ${dayC}28`,borderRadius:10,padding:7,animation:"fi .2s",maxHeight:280,overflowY:"auto"}}>
-      <div style={{display:"flex",gap:2,marginBottom:5,flexWrap:"wrap"}}>
-        {Object.entries(CATS).map(([k,v])=><button key={k} onClick={()=>setFCat(k)} style={{fontSize:8,fontWeight:600,padding:"2px 6px",borderRadius:5,border:`1px solid ${aCat===k?v.c+"88":"#ddd"}`,background:aCat===k?v.c+"15":"#fafafa",color:aCat===k?v.c:"#999",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{v.i}{v.l.replace(/^. /,"")}</button>)}
-      </div>
-      {alts.length===0&&<div style={{fontSize:9,color:"#bbb",textAlign:"center",padding:6}}>ไม่มีตัวเลือก</div>}
-      {alts.map(al=><button key={al.k} onClick={()=>{onSwap(al.k);setShowS(false);setFCat(null);}} style={{display:"flex",alignItems:"center",gap:5,width:"100%",padding:"6px 7px",border:`1px solid ${al.prox===0?dayC+"40":"#eee"}`,borderRadius:8,background:al.prox===0?`${dayC}05`:"#fff",cursor:"pointer",fontFamily:"'Outfit',sans-serif",textAlign:"left",marginBottom:3}}>
-        <div style={{background:CATS[al.cat]?.bg||"#eee",borderRadius:6,width:26,height:26,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#fff",flexShrink:0}}>{al.img||"📌"}</div>
-        <div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:10,color:"#1a1a2e"}}>{al.t} <span style={{fontSize:7,color:"#f59e0b"}}>{al.rat}</span></div><div style={{fontSize:8,color:"#999"}}>💰{al.bud}·{al.pay}</div></div>
-        <span style={{fontSize:7,fontWeight:600,color:al.prox===0?"#06d6a0":al.prox===1?"#ffa62b":"#ccc",background:al.prox===0?"#06d6a00D":al.prox===1?"#ffa62b0D":"#f5f5f5",padding:"2px 4px",borderRadius:4,whiteSpace:"nowrap"}}>{al.prox===0?"✓โซนเดียว":al.prox===1?"↗ใกล้":"↗↗ไกล"}</span>
-      </button>)}
-      <button onClick={()=>{setShowS(false);setFCat(null);}} style={{width:"100%",padding:4,border:"none",borderRadius:6,background:"#f0f0f0",cursor:"pointer",fontSize:9,fontWeight:600,color:"#888",fontFamily:"'Outfit',sans-serif"}}>ปิด</button>
-    </div>}
-  </div>);
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "palette": ["#D97757", "#29261b", "#f6f4ef"],
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        options={['#D97757', '#2A6FDB', '#1F8A5B', '#7A5AE0']}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakColor  label="Palette" value={t.palette}
+//                        options={[['#D97757', '#29261b', '#f6f4ef'],
+//                                  ['#475569', '#0f172a', '#f1f5f9']]}
+//                        onChange={(v) => setTweak('palette', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
+    // can react — the parent message only reaches the host, not peers.
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
 }
 
-// App with Firebase real-time sync
-function AppFirebase() {
-  const { useState, useMemo, useEffect, useRef } = React;
-  const SAVE_KEY = "danang_trip_v6";
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', noDeckControls = false, children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  // Auto-inject a rail toggle when a <deck-stage> is on the page. The
+  // toggle drives the deck's per-viewer _railVisible via window message;
+  // state is mirrored from the same localStorage key the deck reads so
+  // the control reflects reality across reloads. The mechanism is the
+  // message — authors who want custom placement can post it directly
+  // and pass noDeckControls to suppress this one.
+  const hasDeckStage = React.useMemo(
+    () => typeof document !== 'undefined' && !!document.querySelector('deck-stage'),
+    [],
+  );
+  // Hide the toggle until the host has actually enabled the rail (the
+  // __omelette_rail_enabled window message, posted only when the
+  // omelette_deck_rail_enabled flag is on for this user). The initial read
+  // covers TweaksPanel mounting after the message already arrived; the
+  // listener covers the common case of mounting first.
+  const [railEnabled, setRailEnabled] = React.useState(
+    () => hasDeckStage && !!document.querySelector('deck-stage')?._railEnabled,
+  );
+  React.useEffect(() => {
+    if (!hasDeckStage || railEnabled) return undefined;
+    const onMsg = (e) => {
+      if (e.data && e.data.type === '__omelette_rail_enabled') setRailEnabled(true);
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [hasDeckStage, railEnabled]);
+  const [railVisible, setRailVisible] = React.useState(() => {
+    try { return localStorage.getItem('deck-stage.railVisible') !== '0'; } catch (e) { return true; }
+  });
+  const toggleRail = (on) => {
+    setRailVisible(on);
+    window.postMessage({ type: '__deck_rail_visible', on }, '*');
+  };
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-noncommentable=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {children}
+          {hasDeckStage && railEnabled && !noDeckControls && (
+            <TweakSection label="Deck">
+              <TweakToggle label="Thumbnail rail" value={railVisible} onChange={toggleRail} />
+            </TweakSection>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  // Segments wrap mid-word once per-segment width runs out. The track is
+  // ~248px (280 panel − 28 body pad − 4 seg pad), each button loses 12px
+  // to its own padding, and 11.5px system-ui averages ~6.3px/char — so 2
+  // options fit ~16 chars each, 3 fit ~10. Past that (or >3 options), fall
+  // back to a dropdown rather than wrap.
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    // <select> emits strings — map back to the original option value so the
+    // fallback stays type-preserving (numbers, booleans) like the segment path.
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+// Relative-luminance contrast pick — checkmarks drawn over a swatch need to
+// read on both #111 and #fafafa without per-option configuration. Hex input
+// only (#rgb / #rrggbb); named or rgb()/hsl() colors fall through to "light".
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+// TweakColor — curated color/palette picker. Each option is either a single
+// hex string or an array of 1-5 hex strings; the card adapts — a lone color
+// renders solid, a palette renders colors[0] as the hero (left ~2/3) with the
+// rest stacked in a sharp column on the right. onChange emits the
+// option in the shape it was passed (string stays string, array stays array).
+// Without options it falls back to the native color input for back-compat.
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  // Native <input type=color> emits lowercase hex per the HTML spec, so
+  // compare case-insensitively. String() guards JSON.stringify(undefined),
+  // which returns the primitive undefined (no .toLowerCase).
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+</script>
+<script type="text/babel">
+/* Da Nang trip — hi-fi mobile app */
+const { useState, useEffect, useRef, useMemo } = React;
+
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "fontScale": 1.0,
+  "lang": "th"
+}/*EDITMODE-END*/;
+
+// ===== Helpers =====
+const T = (lang, th, en) => lang==="th" ? th : en;
+const I18N = {
+  trip: {th:"ทริป", en:"Trip"},
+  map: {th:"แผนที่", en:"Map"},
+  budget: {th:"งบ", en:"Budget"},
+  pack: {th:"แพ็ค", en:"Pack"},
+  wake: {th:"ตื่น", en:"Wake"},
+  leave: {th:"ออก", en:"Leave"},
+  bath: {th:"ห้องน้ำ", en:"Shower"},
+  weather: {th:"อากาศ", en:"Weather"},
+  outfit: {th:"แต่งตัว", en:"Outfit"},
+  swap: {th:"สลับ", en:"Swap"},
+  remove: {th:"ลบ", en:"Remove"},
+  swipeHint: {th:"← ปัดซ้ายเพื่อสลับ", en:"← swipe left to swap"},
+  add: {th:"เพิ่มกิจกรรม", en:"Add activity"},
+  search: {th:"ค้นหาสถานที่...", en:"Search places..."},
+  cancel: {th:"ยกเลิก", en:"Cancel"},
+  reset: {th:"รีเซ็ตแพลน", en:"Reset plan"},
+  syncOn: {th:"ซิงค์กับเพื่อน", en:"Synced with friends"},
+  syncing: {th:"กำลังเชื่อมต่อ...", en:"Connecting..."},
+  offline: {th:"ออฟไลน์", en:"Offline"},
+  total: {th:"รวม", en:"Total"},
+  perPerson: {th:"ต่อคน", en:"per person"},
+  alts: {th:"ตัวเลือกใกล้เคียง", en:"Nearby alternatives"},
+  noAlts: {th:"ไม่มีตัวเลือกอื่น", en:"No alternatives"},
+  pullRefresh: {th:"ดึงเพื่อรีเฟรช", en:"Pull to refresh"},
+  releaseRefresh: {th:"ปล่อยเพื่อรีเฟรช", en:"Release to refresh"},
+  refreshing: {th:"กำลังโหลด...", en:"Refreshing..."},
+  pickCat: {th:"เลือกหมวดหมู่", en:"Pick a category"},
+  pinUp: {th:"ขึ้น", en:"Up"},
+  pinDn: {th:"ลง", en:"Down"},
+  hour: {th:"ชม.", en:"hr"},
+  min: {th:"น.", en:"min"},
+  km: {th:"กม.", en:"km"},
+  open: {th:"เปิด Google Maps →", en:"Open in Google Maps →"},
+  packLeft: {th:"เหลือ", en:"left"},
+  done: {th:"เสร็จแล้ว", en:"done"},
+};
+
+function res(a){
+  if(a.pk && window.P[a.pk]) return {...window.P[a.pk], id:a.pk, pk:a.pk, time:a.time||"—", dur:window.DUR[a.pk]||60};
+  return {...a, pk:null, time:a.time||"—", dur:a.dur||30};
+}
+function descOf(r, lang){ return lang==="th" ? (r.th||r.descTh||"") : (r.en||r.descEn||r.th||""); }
+
+// ===== Smart Outfit Recommender =====
+function smartOutfit(day, lang) {
+  const acts = (day.acts||[]).map(a => a.pk ? a.pk : a.id||"");
+  const cats = acts.map(pk => window.P[pk]?.cat).filter(Boolean);
+  const hasTemple = acts.some(pk => pk==="act_temple");
+  const hasBeach = acts.some(pk => ["act_beach","act_kala"].includes(pk));
+  const hasIceBath = acts.some(pk => pk==="act_ice");
+  const hasSpa = acts.some(pk => pk==="act_spa");
+  const hasHoiAn = acts.some(pk => pk==="act_hoian");
+  const hasNight = cats.includes("nightlife");
+  const hasRooftop = acts.some(pk => ["night_sky36","night_brilliant"].includes(pk));
+  const hasShopping = cats.includes("shopping");
+  const hasMarble = acts.some(pk => pk==="act_marble");
+
+  // Build style name
+  let styles = [];
+  if(hasTemple||hasMarble) styles.push(lang==="th"?"วัด/ภูเขา":"Temple");
+  if(hasBeach||hasIceBath) styles.push(lang==="th"?"ชายหาด":"Beach");
+  if(hasHoiAn) styles.push("Hội An");
+  if(hasSpa) styles.push("Spa");
+  if(hasRooftop) styles.push("Rooftop");
+  if(hasShopping && styles.length===0) styles.push(lang==="th"?"เดินช้อป":"Shopping");
+  if(styles.length===0) styles.push(lang==="th"?"เดินเที่ยวสบาย":"Casual Day Out");
+  const styleName = styles.join(" + ");
+
+  // Build clothing items
+  let clothes = [];
+  let tips = [];
+  let colors = [];
+
+  // Base layer
+  if(hasTemple || hasMarble) {
+    clothes.push(lang==="th"?"เสื้อแขนสั้นมิดชิด+กางเกงขายาวบาง":"Modest top + light long pants");
+    tips.push(lang==="th"?"ผ้าคลุมไหล่เข้าวัด":"Temple shawl required");
+    colors.push(lang==="th"?"🩵 ฟ้าอ่อน":"🩵 light blue");
+    colors.push(lang==="th"?"🤍 ขาว":"🤍 white");
+  }
+  if(hasBeach || hasIceBath) {
+    clothes.push(lang==="th"?"ชุดว่ายน้ำ+Cover-up ผ้าบาง":"Swimsuit + cover-up");
+    tips.push(lang==="th"?"กันน้ำมือถือ":"Waterproof phone pouch");
+    if(!hasTemple) { colors.push(lang==="th"?"💛 เหลือง":"💛 yellow"); colors.push(lang==="th"?"🤍 ขาว":"🤍 white"); }
+  }
+  if(hasHoiAn) {
+    clothes.push(lang==="th"?"เดรสสั้นน่ารัก/ชุดถ่ายรูป":"Cute dress / photo-ready outfit");
+    if(!hasTemple&&!hasBeach) { colors.push(lang==="th"?"🩷 ชมพูพาสเทล":"🩷 pastel pink"); colors.push(lang==="th"?"🤍 ขาว":"🤍 white"); }
+  }
+  if(hasSpa) {
+    clothes.push(lang==="th"?"ชุดสบาย ใส่ง่ายถอดง่าย":"Easy comfy clothes");
+  }
+  if(hasRooftop) {
+    clothes.push(lang==="th"?"แต่งตัวดูดีหน่อย":"Dress up a bit");
+    if(colors.length===0) { colors.push(lang==="th"?"🖤 ดำ":"🖤 black"); colors.push(lang==="th"?"🤍 ขาว":"🤍 white"); }
+  }
+  if(hasShopping) {
+    clothes.push(lang==="th"?"รองเท้าเดินสบาย+กระเป๋าผ้า":"Comfy shoes + tote bag");
+  }
+  if(clothes.length===0) {
+    clothes.push(lang==="th"?"เสื้อยืดสีอ่อน+กางเกงผ้า+ผ้าใบ":"Light tee + soft pants + sneakers");
+    colors.push(lang==="th"?"🤍 ขาว":"🤍 white");
+    colors.push(lang==="th"?"🩵 ฟ้า":"🩵 blue");
+  }
+  if(colors.length<2) colors.push(lang==="th"?"เบจ":"beige");
+
+  // Universal tips
+  tips.push(lang==="th"?"ครีมกันแดด SPF50+":"Sunscreen SPF50+");
+  tips.push(lang==="th"?"แว่นกันแดด+หมวก":"Sunglasses + hat");
+
+  // Check if temple+beach combo (need to layer)
+  if(hasTemple && hasBeach) {
+    clothes = [lang==="th"
+      ?"เสื้อมิดชิด+กางเกงขายาวบาง(เข้าวัด) ชุดว่ายน้ำใส่ข้างใน"
+      :"Modest top + long pants (temple) swimsuit underneath"];
+    tips.unshift(lang==="th"?"เปลี่ยนชุดได้ที่หาด":"Change at the beach");
+  }
+
+  return {
+    style: styleName,
+    desc: clothes.join(" · "),
+    colors: colors.join(" + "),
+    tips: "💡 " + tips.join(" · "),
+  };
+}
+
+// Parse min budget for budget tab
+function parseBud(b){
+  if(!b) return 0;
+  const s = String(b);
+  if(/free|—|varies/i.test(s)) return 0;
+  const parts = s.split(/[-–~]/).map(x=>x.trim()).filter(Boolean);
+  // Determine fallback suffix from any part
+  let fallback = "";
+  for(const p of parts){ const m=p.match(/([kKmM])/); if(m){ fallback=m[1]; break; } }
+  const nums = parts.map(p => {
+    const m = p.match(/(\d+(?:\.\d+)?)\s*([kKmM]?)/);
+    if(!m) return null;
+    let n = parseFloat(m[1]);
+    let suffix = m[2] || fallback;
+    if(suffix==="M"||suffix==="m") n *= 1000000;
+    else if(suffix==="k"||suffix==="K") n *= 1000;
+    return n;
+  }).filter(n=>n!==null && !isNaN(n));
+  if(nums.length===0) return 0;
+  return Math.round(nums.reduce((a,b)=>a+b,0)/nums.length);
+}
+const VND_TO_THB = 0.0014; // approx
+
+// ===== Smart Description Generator =====
+function smartDesc(name, cat, lang) {
+  const n = (name||"").toLowerCase();
+  const th = lang === "th";
+  if(cat==="cafe") {
+    if(/marou|chocolate|choco/.test(n)) return th?"ช็อกโกแลต+เบเกอรี่ ครัวซองค์สุดฟิน":"Chocolate & bakery · croissants";
+    if(/bread|bakery|bake/.test(n)) return th?"เบเกอรี่ ขนมปังโฮมเมด กาแฟหอม":"Bakery · homemade bread · coffee";
+    if(/roast|specialty/.test(n)) return th?"Specialty คั่วเอง กาแฟพรีเมียม":"Specialty roastery · premium beans";
+    if(/garden|vườn/.test(n)) return th?"คาเฟ่สวนสวย ร่มรื่น":"Garden café · lush atmosphere";
+    return th?"คาเฟ่น่ารัก บรรยากาศดี กาแฟอร่อย":"Cute café · great vibe · good coffee";
+  }
+  if(cat==="food") {
+    if(/bánh xèo/.test(n)) return th?"บั๋นแซวกรอบ ไส้แน่น สูตรท้องถิ่น":"Crispy bánh xèo · local recipe";
+    if(/bánh mì/.test(n)) return th?"บั๋นหมี่ ขนมปังกรอบ ไส้เต็ม":"Bánh mì · crispy baguette · loaded";
+    if(/phở/.test(n)) return th?"เฝอเวียดนาม น้ำซุปใส เส้นสด":"Phở · clear broth · fresh noodles";
+    if(/mì quảng/.test(n)) return th?"หมี่กวางดานัง เส้นเหนียวนุ่ม":"Mì quảng · Da Nang style noodles";
+    if(/bún/.test(n)) return th?"บุ๋นเส้นสด น้ำจิ้มเด็ด":"Bún · fresh vermicelli · great sauce";
+    if(/cơm|rice/.test(n)) return th?"ข้าวจานเดียว สูตรดานัง อร่อยถูก":"Rice dish · Da Nang style · cheap & tasty";
+    if(/seafood|hải sản|cua|cá/.test(n)) return th?"ซีฟู้ดสดจากทะเล เลือกจากแท้งค์":"Fresh seafood · pick from tank";
+    if(/pizza|pasta|italian/.test(n)) return th?"อิตาเลียน พิซซ่าอบสด":"Italian · fresh baked pizza";
+    if(/korean|เกาหลี/.test(n)) return th?"อาหารเกาหลี BBQ+หม้อไฟ":"Korean BBQ & hotpot";
+    if(/burger/.test(n)) return th?"เบอร์เกอร์จัดเต็ม เนื้อฉ่ำ":"Juicy loaded burgers";
+    if(/cuốn|roll/.test(n)) return th?"ม้วนผักสด ไส้กุ้ง สูตรเวียดนาม":"Fresh rolls · shrimp · Vietnamese style";
+    return th?"ร้านอาหารอร่อย บรรยากาศดี ลองสั่งเมนูแนะนำ":"Tasty restaurant · try their signature dish";
+  }
+  if(cat==="shopping") {
+    if(/vintage|thrift/.test(n)) return th?"เสื้อผ้าวินเทจมือสอง JP/KR คุณภาพดี":"Vintage JP/KR secondhand · quality";
+    if(/jewel|accessori/.test(n)) return th?"เครื่องประดับน่ารัก ต่างหู สร้อย":"Jewelry · earrings · necklaces";
+    if(/handcraft|handmade/.test(n)) return th?"งานฝีมือแฮนด์เมด ของฝากน่ารัก":"Handmade crafts · cute souvenirs";
+    if(/chợ|market/.test(n)) return th?"ตลาดท้องถิ่น ของฝาก ต่อราคาได้":"Local market · souvenirs · bargain";
+    if(/korean|salavi/.test(n)) return th?"แฟชั่นเกาหลี น่ารัก ราคาดี":"Korean fashion · cute · good price";
+    if(/mono|fashion|cloth/.test(n)) return th?"เสื้อผ้าสไตล์โมเดิร์น คอลเลคชั่นน่ารัก":"Modern fashion · cute collections";
+    if(/designer/.test(n)) return th?"แบรนด์ดีไซเนอร์ท้องถิ่น ผ้าคุณภาพ":"Local designer · quality fabric";
+    return th?"ร้านช้อปปิ้ง มีของให้เลือกเพียบ":"Shopping · lots to choose from";
+  }
+  if(cat==="activity") {
+    if(/temple|chùa|pagoda/.test(n)) return th?"วัดสวย วิวทะเล สงบร่มเย็น":"Beautiful temple · sea view · peaceful";
+    if(/beach|bãi/.test(n)) return th?"หาดทรายขาว น้ำใส เดินเล่นชิล":"White sand · clear water · chill stroll";
+    if(/spa|massage/.test(n)) return th?"สปา+นวดผ่อนคลาย บริการดี":"Spa & massage · great service";
+    if(/ice.*bath|sauna/.test(n)) return th?"Ice Bath+Sauna ฟื้นฟูร่างกาย":"Ice bath + sauna · recovery";
+    if(/mountain|marble/.test(n)) return th?"ภูเขา ถ้ำ วิวพาโนรามา":"Mountain · caves · panoramic view";
+    if(/pool|club/.test(n)) return th?"สระว่ายน้ำ+Beach Club เพลินๆ":"Pool + beach club · chill vibes";
+    return th?"สถานที่น่าเที่ยว บรรยากาศดี":"Great spot · nice atmosphere";
+  }
+  if(cat==="nightlife") {
+    if(/craft|brew/.test(n)) return th?"Craft beer ท้องถิ่น รสชาติเฉพาะตัว":"Local craft beer · unique flavors";
+    if(/rooftop|sky|top/.test(n)) return th?"Rooftop วิวเมือง นั่งชิลยามค่ำ":"Rooftop · city view · evening chill";
+    if(/walk|street/.test(n)) return th?"ถนนคนเดิน street food สนุกๆ":"Walking street · street food · fun";
+    if(/market/.test(n)) return th?"ตลาดกลางคืน อาหารหลากหลาย":"Night market · diverse food";
+    return th?"ที่เที่ยวกลางคืน นั่งชิลสบาย":"Night spot · relax & chill";
+  }
+  return th?"สถานที่น่าสนใจใน Da Nang":"Interesting spot in Da Nang";
+}
+
+// ===== Pull-to-refresh =====
+function usePullRefresh(onRefresh){
+  const [pull, setPull] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const startY = useRef(null);
+  useEffect(() => {
+    const onTouchStart = (e) => {
+      if(window.scrollY <= 0 && !refreshing) startY.current = e.touches[0].clientY;
+    };
+    const onTouchMove = (e) => {
+      if(startY.current === null) return;
+      const dy = e.touches[0].clientY - startY.current;
+      if(dy > 0 && window.scrollY <= 0){
+        setPull(Math.min(dy * 0.5, 100));
+      }
+    };
+    const onTouchEnd = async () => {
+      if(pull > 60){
+        setRefreshing(true);
+        await onRefresh();
+        setTimeout(()=>{ setRefreshing(false); setPull(0); }, 700);
+      } else {
+        setPull(0);
+      }
+      startY.current = null;
+    };
+    window.addEventListener('touchstart', onTouchStart, {passive:true});
+    window.addEventListener('touchmove', onTouchMove, {passive:true});
+    window.addEventListener('touchend', onTouchEnd);
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [pull, refreshing, onRefresh]);
+  return {pull, refreshing};
+}
+
+// ===== Activity Card with swipe =====
+function ActivityCard({a, prev, day, lang, onSwapOpen, onUp, onDn, onRemove, onTimeChange}){
+  const r = res(a);
+  const p = prev ? res(prev) : null;
+  const km = p ? window.dist(p, r) : null;
+  const ci = r.cat && window.CATS[r.cat];
+  const cc = ci ? ci.c : "#999";
+  const [dx, setDx] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const [editTime, setEditTime] = useState(false);
+  const startX = useRef(null);
+  const moved = useRef(false);
+
+  const onStart = (e) => {
+    if(a.fix) return;
+    startX.current = e.touches ? e.touches[0].clientX : e.clientX;
+    moved.current = false;
+  };
+  const onMove = (e) => {
+    if(startX.current === null) return;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const d = x - startX.current;
+    if(Math.abs(d) > 4) moved.current = true;
+    setDx(Math.max(-120, Math.min(60, d)));
+  };
+  const onEnd = () => {
+    if(startX.current === null) return;
+    if(dx < -70){
+      // open swap
+      if(a.pk) onSwapOpen();
+      setDx(0);
+    } else if(dx > 50){
+      // mark visited (toggle expand for now)
+      setDx(0);
+    } else {
+      setDx(0);
+    }
+    startX.current = null;
+    setTimeout(()=>{ moved.current = false; }, 50);
+  };
+
+  const fs = `var(--fs)`;
+  const cardBg = "#fff";
+
+  // distance pill
+  return (
+    <div data-comment-anchor={`act-${a.pk||a.id}`} style={{position:"relative"}}>
+      {km !== null && km > 0 && (
+        <div style={{display:"flex",alignItems:"center",gap:8,padding:"4px 0 4px 28px",fontSize:"calc(11px * var(--fs))",color:"#999"}}>
+          <div style={{width:1,height:14,background:"#ddd"}}/>
+          <span style={{background:"#f0ece3",padding:"2px 8px",borderRadius:10,fontWeight:600}}>🚗 {km} {T(lang, "กม.","km")}</span>
+        </div>
+      )}
+      <div style={{
+        position:"relative",
+        marginBottom:10,
+        borderRadius:18,
+        overflow:"hidden",
+        background: dx < -10 ? `linear-gradient(90deg, ${cardBg} 0%, ${cardBg} 60%, #ff8a5b 100%)` : cardBg,
+      }}>
+        {/* swap reveal */}
+        {dx < -10 && (
+          <div style={{
+            position:"absolute", right:14, top:0, bottom:0,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            color:"#fff", fontWeight:700, fontSize:"calc(13px * var(--fs))",
+            zIndex:0, pointerEvents:"none",
+          }}>
+            🔀 {T(lang, "สลับ", "Swap")}
+          </div>
+        )}
+        <div
+          onTouchStart={onStart} onTouchMove={onMove} onTouchEnd={onEnd}
+          onMouseDown={onStart} onMouseMove={(e)=>{if(startX.current!==null)onMove(e)}} onMouseUp={onEnd} onMouseLeave={onEnd}
+          onClick={()=>{ if(!moved.current && !a.fix) setExpanded(x=>!x); }}
+          style={{
+            background: a.fix ? "linear-gradient(135deg,#fafafa,#f5f5f5)" : "#fff",
+            borderRadius:18,
+            border: a.fix ? `1.5px dashed ${day.c}66` : `2px solid ${day.c}33`,
+            padding:"14px 14px",
+            transform: `translateX(${dx}px)`,
+            transition: startX.current===null ? "transform .25s cubic-bezier(.2,.8,.2,1)" : "none",
+            position:"relative",
+            zIndex:1,
+            cursor: a.fix ? "default" : "pointer",
+          }}>
+          <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+            {/* photo / emoji slot */}
+            <div style={{
+              width:64,height:64,borderRadius:14,
+              background: ci ? ci.grad : "linear-gradient(135deg,#eaeaea,#cfcfcf)",
+              display:"flex",alignItems:"center",justifyContent:"center",
+              fontSize:30, color:"#fff", flexShrink:0,
+              boxShadow:"0 4px 10px rgba(0,0,0,0.06)",
+            }}>{r.img || (ci?ci.i:"📍")}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",marginBottom:3}}>
+                {!a.fix && editTime ? (
+                  <input type="time" defaultValue={r.time!=="—"?r.time:""} autoFocus
+                    onClick={e=>e.stopPropagation()}
+                    onBlur={e=>{setEditTime(false);if(e.target.value&&onTimeChange)onTimeChange(e.target.value);}}
+                    onKeyDown={e=>{if(e.key==="Enter"){setEditTime(false);if(e.target.value&&onTimeChange)onTimeChange(e.target.value);}}}
+                    style={{
+                      fontFamily:"inherit",fontWeight:700,fontSize:"calc(14px * var(--fs))",color:day.c2,
+                      border:`2px solid ${day.c2}`,borderRadius:8,padding:"2px 6px",width:90,outline:"none",
+                    }}/>
+                ) : (
+                  <span onClick={e=>{if(!a.fix){e.stopPropagation();setEditTime(true);}}}
+                    style={{
+                      fontWeight:700,fontSize:"calc(14px * var(--fs))",color:day.c2,
+                      background:`${day.c2}14`, padding:"2px 8px", borderRadius:8,
+                      cursor:a.fix?"default":"pointer",
+                    }}>{r.time}{!a.fix && " ✏️"}</span>
+                )}
+                {r.dur && !a.fix && (
+                  <span style={{fontSize:"calc(11px * var(--fs))",color:"#888"}}>· {r.dur}{T(lang,"น.","m")}</span>
+                )}
+                {r.rat && r.rat !== "—" && (
+                  <span style={{fontSize:"calc(11px * var(--fs))",color:"#f59e0b",fontWeight:700}}>★ {r.rat}</span>
+                )}
+                {r.opt && <span style={{fontSize:"calc(10px * var(--fs))",color:"#fff",background:"#e89b9b",padding:"1px 6px",borderRadius:6,fontWeight:700}}>OPT</span>}
+              </div>
+              <div style={{
+                fontWeight:700, fontSize:"calc(17px * var(--fs))",
+                color:"#1a1a2e", lineHeight:1.2,
+              }}>{r.t}</div>
+              <div style={{fontSize:"calc(12px * var(--fs))",color:"#666",marginTop:3,lineHeight:1.4}}>
+                {descOf(r, lang)}
+              </div>
+              {!a.fix && (
+                <div style={{display:"flex",gap:5,marginTop:6,flexWrap:"wrap"}}>
+                  {r.pay && r.pay !== "—" && <span style={{fontSize:"calc(10px * var(--fs))",color:"#2e7d32",background:"#e8f5e9",padding:"2px 7px",borderRadius:6,fontWeight:600}}>{r.pay}</span>}
+                  {r.bud && r.bud !== "—" && <span style={{fontSize:"calc(10px * var(--fs))",color:"#e65100",background:"#fff3e0",padding:"2px 7px",borderRadius:6,fontWeight:600}}>💰 {r.bud}{/^\d/.test(r.bud)?"/คน":""}</span>}
+                  {r.rat && r.rat !== "—" && <span style={{fontSize:"calc(10px * var(--fs))",color: /^\d/.test(r.rat)?"#f59e0b":"#1a73e8",background: /^\d/.test(r.rat)?"#fef3c7":"#e8f0fe",padding:"2px 7px",borderRadius:6,fontWeight:600}}>{/^\d/.test(r.rat) ? "📍 "+r.rat+"⭐" : "🗺️ "+r.rat}</span>}
+                  {r.z && window.ZL[r.z] && (
+                    <span style={{fontSize:"calc(10px * var(--fs))",color:"#777",background:"#f5f1ea",padding:"2px 7px",borderRadius:6}}>{window.ZL[r.z][lang]||window.ZL[r.z].en}</span>
+                  )}
+                  {r.dur && <span style={{fontSize:"calc(10px * var(--fs))",color:"#7b1fa2",background:"#f3e5f5",padding:"2px 7px",borderRadius:6,fontWeight:600}}>⏱️ {T(lang,"แนะนำ","~")} {r.dur} {T(lang,"นาที","min")}</span>}
+                  {r.hrs && <span style={{fontSize:"calc(10px * var(--fs))",color:"#0277bd",background:"#e1f5fe",padding:"2px 7px",borderRadius:6,fontWeight:600}}>🕐 {r.hrs}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+          {expanded && !a.fix && (
+            <div style={{marginTop:10,paddingTop:10,borderTop:"1px dashed #e0d8c8"}}>
+              <div style={{fontSize:"calc(12px * var(--fs))",color:"#666",lineHeight:1.5,marginBottom:8}}>
+                📍 {r.addr}
+              </div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                <a href={`https://www.google.com/maps/search/${encodeURIComponent((r.t||"")+" "+(r.addr||"")+" Da Nang")}`}
+                  target="_blank" rel="noopener" onClick={e=>e.stopPropagation()}
+                  style={{
+                    flex:1, minWidth:140,
+                    background:"linear-gradient(135deg,#4285f4,#1a73e8)",
+                    color:"#fff", padding:"10px 12px", borderRadius:12,
+                    textDecoration:"none", textAlign:"center", fontWeight:700,
+                    fontSize:"calc(12px * var(--fs))",
+                  }}>{T(lang,"📸 Google Maps","📸 Open Maps")}</a>
+                {a.pk && (
+                  <button onClick={(e)=>{e.stopPropagation();onSwapOpen();}} style={{
+                    background:"#fff", border:`2px solid ${day.c}`, color:day.c,
+                    padding:"10px 14px", borderRadius:12, fontWeight:700,
+                    fontSize:"calc(12px * var(--fs))", cursor:"pointer", fontFamily:"inherit",
+                  }}>🔀 {T(lang,"สลับ","Swap")}</button>
+                )}
+              </div>
+              <div style={{display:"flex",gap:6,marginTop:8,justifyContent:"flex-end"}}>
+                <button onClick={(e)=>{e.stopPropagation();onUp();}} style={btnSmall}>↑</button>
+                <button onClick={(e)=>{e.stopPropagation();onDn();}} style={btnSmall}>↓</button>
+                <button onClick={(e)=>{e.stopPropagation();onRemove();}} style={{...btnSmall,background:"#fff0f0",color:"#e89b9b"}}>🗑</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+const btnSmall = {
+  background:"#f5f1ea", border:"none", borderRadius:10,
+  width:36, height:36, cursor:"pointer", fontSize:"calc(14px * var(--fs))",
+  fontFamily:"inherit", color:"#666",
+};
+
+// ===== Swap Bottom Sheet =====
+function SwapSheet({open, current, onClose, onSwap, lang, swapCat, setSwapCat}){
+  const cur = current ? res(current) : null;
+  if(!cur) return null;
+  const activeCat = swapCat || cur.cat;
+  const alts = Object.entries(window.P).filter(([k,v]) => v.cat === activeCat && k !== current.pk)
+    .map(([k,v]) => ({k, ...v, prox: cur.z && v.z===cur.z?0 : cur.z && window.NEAR[cur.z]?.includes(v.z)?1 : 2}))
+    .sort((a,b) => a.prox - b.prox);
+  return (
+    <div style={{
+      position:"fixed", inset:0, zIndex:50,
+      background: open ? "rgba(0,0,0,0.4)" : "transparent",
+      pointerEvents: open ? "auto" : "none",
+      transition:"background .25s",
+    }} onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        position:"absolute", left:0, right:0, bottom:0,
+        background:"#fffaf3",
+        borderTopLeftRadius:28, borderTopRightRadius:28,
+        padding:"12px 18px 28px",
+        maxHeight:"82vh", overflowY:"auto",
+        transform: open ? "translateY(0)" : "translateY(100%)",
+        transition:"transform .3s cubic-bezier(.2,.8,.2,1)",
+        boxShadow:"0 -8px 30px rgba(0,0,0,0.15)",
+      }}>
+        <div style={{width:42,height:5,background:"#ddd",borderRadius:3,margin:"6px auto 14px"}}/>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
+          <div style={{
+            width:48,height:48,borderRadius:12,
+            background: window.CATS[cur.cat]?.grad || "#eee",
+            display:"flex",alignItems:"center",justifyContent:"center",
+            fontSize:24,color:"#fff",
+          }}>{cur.img || "📍"}</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:"calc(12px * var(--fs))",color:"#999"}}>{T(lang,"แทนที่","Replace")}</div>
+            <div style={{fontSize:"calc(17px * var(--fs))",fontWeight:700}}>{cur.t}</div>
+          </div>
+        </div>
+        {/* Category tabs for cross-category swap */}
+        <div style={{display:"flex",gap:4,marginBottom:12,overflowX:"auto",paddingBottom:4}}>
+          {Object.entries(window.CATS).map(([k,v]) => {
+            const isActive = activeCat === k;
+            const cnt = Object.entries(window.P).filter(([pk,pv]) => pv.cat === k && pk !== current.pk).length;
+            return (
+              <button key={k} onClick={() => setSwapCat(k)} style={{
+                padding:"6px 10px", borderRadius:10, border:`1.5px solid ${isActive ? v.c : "#e0e0e0"}`,
+                background: isActive ? v.c+"18" : "#fff", color: isActive ? v.c : "#999",
+                fontFamily:"inherit", fontWeight:600, fontSize:"calc(11px * var(--fs))",
+                cursor:"pointer", whiteSpace:"nowrap", flexShrink:0,
+              }}>{v.i} {v[lang]||v.en} ({cnt})</button>
+            );
+          })}
+        </div>
+        <div style={{fontSize:"calc(13px * var(--fs))",color:"#888",marginBottom:8}}>
+          {T(lang, I18N.alts.th, I18N.alts.en)} ({alts.length})
+        </div>
+        {alts.length === 0 && (
+          <div style={{textAlign:"center",padding:30,color:"#bbb"}}>{T(lang, I18N.noAlts.th, I18N.noAlts.en)}</div>
+        )}
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {alts.map(al => (
+            <button key={al.k} onClick={()=>{onSwap(al.k);onClose();}} style={{
+              display:"flex",alignItems:"center",gap:12, padding:"12px 12px",
+              border:`2px solid ${al.prox===0?"#7BC9B6":"#eee"}`,
+              borderRadius:16, background: al.prox===0 ? "#f0fbf6" : "#fff",
+              cursor:"pointer", fontFamily:"inherit", textAlign:"left", width:"100%",
+            }}>
+              <div style={{
+                width:54,height:54,borderRadius:13,
+                background: window.CATS[al.cat]?.grad || "#eee",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                fontSize:24, color:"#fff", flexShrink:0,
+              }}>{al.img || "📍"}</div>
+              <div style={{flex:1, minWidth:0}}>
+                <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                  <span style={{fontWeight:700,fontSize:"calc(15px * var(--fs))",color:"#1a1a2e"}}>{al.t}</span>
+                  <span style={{fontSize:"calc(11px * var(--fs))",color:"#f59e0b",fontWeight:700}}>★ {al.rat}</span>
+                </div>
+                <div style={{fontSize:"calc(12px * var(--fs))",color:"#666",marginTop:2}}>{descOf(al, lang)}</div>
+                <div style={{fontSize:"calc(11px * var(--fs))",color:"#999",marginTop:3}}>💰 {al.bud}</div>
+              </div>
+              <span style={{
+                fontSize:"calc(10px * var(--fs))", fontWeight:700,
+                color: al.prox===0?"#0a8a6c":al.prox===1?"#c97c2a":"#999",
+                background: al.prox===0?"#0a8a6c1A":al.prox===1?"#c97c2A1A":"#f5f5f5",
+                padding:"3px 8px", borderRadius:8, whiteSpace:"nowrap",
+              }}>{al.prox===0?T(lang,"โซนเดียว","same zone"):al.prox===1?T(lang,"ใกล้","nearby"):T(lang,"ไกล","far")}</span>
+            </button>
+          ))}
+        </div>
+        <button onClick={onClose} style={{
+          width:"100%", marginTop:14, padding:"12px",
+          background:"#f0ece3", border:"none", borderRadius:14,
+          fontFamily:"inherit", fontWeight:700, fontSize:"calc(14px * var(--fs))",
+          color:"#666", cursor:"pointer",
+        }}>{T(lang, I18N.cancel.th, I18N.cancel.en)}</button>
+      </div>
+    </div>
+  );
+}
+
+// ===== Day Hero (magazine style) =====
+function DayHero({day, lang}){
+  // Always use INIT for static metadata (Firebase might have old format)
+  const initDay = window.INIT.find(d => d.id === day.id) || day;
+  const outfit = smartOutfit(day, lang); // Dynamic based on actual activities!
+  const weather = initDay.weather || {};
+  const dl = initDay.dl || {};
+  const date = initDay.date || day.date;
+  const heroBg = {
+    sunset: "linear-gradient(135deg, #ff8a5b 0%, #ffb46b 50%, #f5c46b 100%)",
+    ocean: "linear-gradient(135deg, #69b6c4 0%, #7BC9B6 100%)",
+    sand: "linear-gradient(135deg, #f5c46b 0%, #f4d4a3 50%, #e8b87f 100%)",
+    lantern: "linear-gradient(135deg, #e89b9b 0%, #f5a6b8 50%, #ffb46b 100%)",
+  }[day.hero] || "linear-gradient(135deg, #ff8a5b, #ffb46b)";
+  return (
+    <div data-comment-anchor={`day-hero-${day.id}`} style={{
+      position:"relative",
+      borderRadius:24, overflow:"hidden",
+      background: heroBg,
+      padding:"20px 22px 24px", color:"#fff",
+      boxShadow:"0 10px 30px rgba(0,0,0,0.1)",
+      marginBottom:18,
+    }}>
+      {/* decorative pattern */}
+      <svg viewBox="0 0 400 200" preserveAspectRatio="none" style={{position:"absolute",inset:0,opacity:.2,pointerEvents:"none"}}>
+        <defs>
+          <pattern id={`dots-${day.id}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="3" cy="3" r="1.5" fill="rgba(255,255,255,0.6)"/>
+          </pattern>
+        </defs>
+        <rect width="400" height="200" fill={`url(#dots-${day.id})`}/>
+      </svg>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,position:"relative"}}>
+        <div>
+          <div style={{fontSize:"calc(11px * var(--fs))",letterSpacing:2,opacity:.85,fontWeight:700}}>
+            DAY {day.id} {dl[lang]||dl.en} {date.toUpperCase()}
+          </div>
+          <div style={{fontSize:"calc(28px * var(--fs))",fontWeight:700,lineHeight:1.05,marginTop:4,textShadow:"0 1px 2px rgba(0,0,0,0.1)"}}>
+            {(window.INIT.find(x=>x.id===day.id)||day).ti} {day.th[lang]||day.th.en}
+          </div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:38,lineHeight:1}}>{weather.icon}</div>
+          <div style={{fontSize:"calc(13px * var(--fs))",fontWeight:700,marginTop:2}}>{weather.temp}</div>
+          <div style={{fontSize:"calc(10px * var(--fs))",opacity:.85,marginTop:1}}>{weather[lang==="th"?"descTh":"descEn"]}</div>
+          <div style={{fontSize:"calc(10px * var(--fs))",opacity:.75,marginTop:1}}>🌧️ {T(lang,"ฝน","Rain")}: {weather.rain} · UV: {weather.uv}</div>
+        </div>
+      </div>
+
+      {/* meta strip */}
+      <div style={{
+        display:"grid", gridTemplateColumns:"1fr 1fr 1fr",
+        gap:8, marginTop:14,
+        background:"rgba(255,255,255,0.18)", backdropFilter:"blur(8px)",
+        borderRadius:16, padding:"10px 12px",
+      }}>
+        <div>
+          <div style={{fontSize:"calc(10px * var(--fs))",opacity:.8,fontWeight:700}}>⏰ {T(lang, I18N.wake.th, I18N.wake.en)}</div>
+          <div style={{fontSize:"calc(16px * var(--fs))",fontWeight:700}}>{day.wake}</div>
+        </div>
+        <div>
+          <div style={{fontSize:"calc(10px * var(--fs))",opacity:.8,fontWeight:700}}>🚪 {T(lang, I18N.leave.th, I18N.leave.en)}</div>
+          <div style={{fontSize:"calc(16px * var(--fs))",fontWeight:700}}>{day.leave}</div>
+        </div>
+        <div>
+          <div style={{fontSize:"calc(10px * var(--fs))",opacity:.8,fontWeight:700}}>📍 {day.acts.length}</div>
+          <div style={{fontSize:"calc(16px * var(--fs))",fontWeight:700}}>{T(lang,"จุด","stops")}</div>
+        </div>
+      </div>
+
+      {/* outfit card — full width */}
+      <div style={{
+        marginTop:12, padding:"12px 14px",
+        background:"rgba(255,255,255,0.92)", color:"#1a1a2e",
+        borderRadius:14,
+      }}>
+        <div style={{fontSize:"calc(10px * var(--fs))",fontWeight:700,color:day.c,marginBottom:4}}>👗 {T(lang,"แนะนำแต่งตัว","Outfit tip")}</div>
+        <div style={{fontSize:"calc(14px * var(--fs))",fontWeight:700}}>{outfit.style}: <span style={{fontWeight:400,color:"#555"}}>{outfit.desc}</span></div>
+        <div style={{fontSize:"calc(12px * var(--fs))",marginTop:4}}>{T(lang,"สีที่แนะนำ","Colors")}: {outfit.colors}</div>
+        <div style={{fontSize:"calc(11px * var(--fs))",color:"#888",marginTop:4}}>{outfit.tips}</div>
+      </div>
+    </div>
+  );
+}
+
+// ===== Trip Screen =====
+function TripScreen({days, ad, setAd, lang, onSwap, onMove, onRemove, onAdd, customAdd, onTimeChange}){
+  const [swapTarget, setSwapTarget] = useState(null); // {di, ai}
+  const [addOpen, setAddOpen] = useState(false);
+  const [addCat, setAddCat] = useState(null);
+  const [searchQ, setSearchQ] = useState("");
+  const [swapCat, setSwapCat] = useState(null);
+  const [mapResults, setMapResults] = useState([]);
+  const [mapLoading, setMapLoading] = useState(false);
+  const searchTimer = useRef(null);
+
+  // Search places via Nominatim with Da Nang bounding box
+  const searchMaps = (q) => {
+    if(!q || q.length < 2) { setMapResults([]); return; }
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(async () => {
+      setMapLoading(true);
+      try {
+        // Search within Da Nang area using viewbox
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&viewbox=108.10,15.90,108.40,16.20&bounded=1&limit=5&addressdetails=1&extratags=1`);
+        const data = await resp.json();
+        if(data.length === 0) {
+          // Fallback: search globally with "Da Nang"
+          const resp2 = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+" Da Nang")}&limit=5&addressdetails=1&extratags=1`);
+          const data2 = await resp2.json();
+          setMapResults(data2.map(r => parseNominatim(r)));
+        } else {
+          setMapResults(data.map(r => parseNominatim(r)));
+        }
+      } catch(e) { setMapResults([]); }
+      setMapLoading(false);
+    }, 500);
+  };
+
+  const parseNominatim = (r) => {
+    const addr = r.address || {};
+    const road = addr.road || addr.pedestrian || "";
+    const number = addr.house_number || "";
+    const district = addr.suburb || addr.neighbourhood || addr.city_district || "";
+    const fullAddr = [number, road, district].filter(Boolean).join(", ") || r.display_name?.split(",").slice(0,2).join(",") || "Da Nang";
+    const tags = r.extratags || {};
+    const rating = tags["stars"] || null;
+    // Auto-detect category from OSM type/class
+    const t = (r.type||"").toLowerCase();
+    const c = (r.class||"").toLowerCase();
+    let autoCat = "activity";
+    if(/restaurant|fast_food|food_court|bbq/.test(t)||c==="restaurant") autoCat = "food";
+    else if(/cafe|coffee|bakery|ice_cream/.test(t)) autoCat = "cafe";
+    else if(/bar|pub|nightclub|biergarten/.test(t)) autoCat = "nightlife";
+    else if(/shop|clothes|boutique|jewelry|jewellery|supermarket|mall|marketplace/.test(t)||c==="shop") autoCat = "shopping";
+    else if(/hotel|guest_house|hostel/.test(t)) autoCat = "activity";
+    return {
+      name: r.display_name?.split(",")[0] || r.name || "",
+      addr: fullAddr,
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lon),
+      type: t,
+      autoCat: autoCat,
+      rating: rating,
+      cuisine: tags.cuisine || null,
+      phone: tags.phone || null,
+      opening: tags.opening_hours || null,
+    };
+  };
+  const cur = days.find(d => d.id === ad);
+
+  return (
+    <div style={{padding:"0 16px 100px",position:"relative"}}>
+      {/* Day swiper tabs */}
+      <div style={{
+        display:"flex", gap:6, padding:"10px 0 14px",
+        overflowX:"auto", scrollSnapType:"x mandatory",
+        margin:"0 -16px", paddingLeft:16, paddingRight:16,
+      }}>
+        {days.map(d => (
+          <button key={d.id} onClick={()=>setAd(d.id)} style={{
+            minWidth:74, padding:"10px 0", textAlign:"center",
+            border: ad===d.id ? `2px solid ${d.c}` : "1.5px solid rgba(0,0,0,0.04)",
+            borderRadius:14,
+            background: ad===d.id ? `${d.c}18` : "#fff",
+            color: ad===d.id ? d.c : "#666",
+            fontFamily:"inherit", fontWeight:700,
+            cursor:"pointer",
+            boxShadow: ad===d.id ? `0 4px 12px ${d.c}30` : "0 2px 6px rgba(0,0,0,0.04)",
+            transition:"all .25s",
+            scrollSnapAlign:"start",
+          }}>
+            <div style={{fontSize:"calc(20px * var(--fs))",lineHeight:1}}>{(window.INIT.find(x=>x.id===d.id)||d).ti}</div>
+            <div style={{fontSize:"calc(12px * var(--fs))",marginTop:4,opacity:.95}}>D{d.id} {(window.INIT.find(x=>x.id===d.id)||{}).dl?.[lang]||d.id}</div>
+          </button>
+        ))}
+      </div>
+
+      {cur && <DayHero day={cur} lang={lang}/>}
+
+      {/* Bathroom rota mini-card */}
+      {cur && (
+        <div style={{
+          padding:"10px 14px", marginBottom:14,
+          background:"#fff", borderRadius:14,
+          border:`1.5px dashed ${cur.c2}55`,
+          fontSize:"calc(12px * var(--fs))",
+        }}>
+          <div style={{fontSize:"calc(11px * var(--fs))",color:cur.c2,fontWeight:700,letterSpacing:1}}>
+            🚿 {T(lang, I18N.bath.th, I18N.bath.en)}
+          </div>
+          <div style={{color:"#555",marginTop:3,fontWeight:600}}>{cur.bath}</div>
+        </div>
+      )}
+
+      {/* Swipe hint (first time) */}
+      {cur && cur.acts.some(a=>!a.fix) && (
+        <div style={{
+          textAlign:"center", marginBottom:12,
+          fontSize:"calc(11px * var(--fs))", color:"#aaa",
+          fontStyle:"italic",
+        }}>
+          {T(lang, I18N.swipeHint.th, I18N.swipeHint.en)}
+        </div>
+      )}
+
+      {/* Timeline */}
+      {cur && (
+        <div style={{position:"relative"}}>
+          {/* vertical line */}
+          <div style={{
+            position:"absolute", left:32, top:30, bottom:50,
+            width:2, background:`linear-gradient(180deg, ${cur.c2}33, ${cur.c2}11)`,
+            borderRadius:2, zIndex:0,
+          }}/>
+          {cur.acts.map((a, i) => (
+            <div key={a.pk||a.id||i} style={{position:"relative",paddingLeft:54}}>
+              {/* dot */}
+              <div style={{
+                position:"absolute", left:24, top:18,
+                width:18, height:18, borderRadius:"50%",
+                background:"#fff", border:`3px solid ${cur.c2}`,
+                zIndex:1,
+                boxShadow:`0 0 0 4px ${cur.c2}22`,
+              }}/>
+              <ActivityCard
+                a={a} prev={i>0?cur.acts[i-1]:null} day={cur} lang={lang}
+                onSwapOpen={()=>{setSwapCat(null);setSwapTarget({di:cur.id, ai:i});}}
+                onUp={()=>onMove(cur.id,i,-1)}
+                onDn={()=>onMove(cur.id,i,1)}
+                onRemove={()=>onRemove(cur.id,i)}
+                onTimeChange={nt=>onTimeChange(cur.id,i,nt)}
+              />
+            </div>
+          ))}
+
+          {/* end dot */}
+          <div style={{position:"relative",paddingLeft:54,paddingTop:6}}>
+            <div style={{
+              position:"absolute", left:26, top:8,
+              width:14, height:14, borderRadius:"50%",
+              background:cur.c2, zIndex:1,
+            }}/>
+            <button onClick={()=>setAddOpen(true)} style={{
+              width:"100%", padding:"14px",
+              border:`2px dashed ${cur.c2}66`,
+              background:"transparent", borderRadius:16,
+              color:cur.c2, fontWeight:700,
+              fontSize:"calc(14px * var(--fs))",
+              fontFamily:"inherit", cursor:"pointer",
+            }}>+ {T(lang, I18N.add.th, I18N.add.en)}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Swap sheet */}
+      <SwapSheet
+        open={swapTarget !== null}
+        current={swapTarget ? cur.acts[swapTarget.ai] : null}
+        onClose={()=>setSwapTarget(null)}
+        onSwap={(nk)=>onSwap(swapTarget.di, swapTarget.ai, nk)}
+        lang={lang}
+        swapCat={swapCat}
+        setSwapCat={setSwapCat}
+      />
+
+      {/* Add sheet */}
+      {addOpen && cur && (
+        <div onClick={()=>{setAddOpen(false);setAddCat(null);setSearchQ("");}} style={{
+          position:"fixed", inset:0, zIndex:50, background:"rgba(0,0,0,0.4)",
+        }}>
+          <div onClick={e=>e.stopPropagation()} style={{
+            position:"absolute",left:0,right:0,bottom:0,
+            background:"#fffaf3", borderTopLeftRadius:28, borderTopRightRadius:28,
+            padding:"12px 18px 28px", maxHeight:"82vh",overflowY:"auto",
+          }}>
+            <div style={{width:42,height:5,background:"#ddd",borderRadius:3,margin:"6px auto 14px"}}/>
+            <div style={{fontSize:"calc(20px * var(--fs))",fontWeight:700,marginBottom:10}}>
+              + {T(lang, I18N.add.th, I18N.add.en)}
+            </div>
+            <input value={searchQ} onChange={e=>{setSearchQ(e.target.value);searchMaps(e.target.value);}}
+              placeholder={T(lang, "ค้นหาสถานที่ หรือพิมพ์ค้นจาก Maps...", "Search places or type to find on Maps...")}
+              style={{
+                width:"100%", padding:"12px 14px", borderRadius:14,
+                border:"1.5px solid #e0d8c8", background:"#fff",
+                fontFamily:"inherit", fontSize:"calc(14px * var(--fs))",
+                outline:"none", marginBottom:12,
+              }}/>
+            {!searchQ && (
+              <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
+                {Object.entries(window.CATS).map(([k,v]) => {
+                  const cnt = Object.entries(window.P).filter(([pk,pv])=>pv.cat===k && !cur.acts.some(a=>a.pk===pk)).length;
+                  return (
+                    <button key={k} onClick={()=>setAddCat(addCat===k?null:k)} style={{
+                      padding:"8px 12px", borderRadius:12,
+                      border: addCat===k ? `2px solid ${v.c}` : "2px solid #f0ece3",
+                      background: addCat===k ? `${v.c}15` : "#fff",
+                      color: addCat===k ? v.c : "#666", fontWeight:700,
+                      fontFamily:"inherit", fontSize:"calc(12px * var(--fs))",
+                      cursor:"pointer",
+                    }}>{v.i} {v[lang]||v.en} <span style={{opacity:.6}}>({cnt})</span></button>
+                  );
+                })}
+              </div>
+            )}
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {(searchQ
+                ? Object.entries(window.P).filter(([k,v]) => !cur.acts.some(a=>a.pk===k) && (v.t.toLowerCase().includes(searchQ.toLowerCase()) || (v.th||"").includes(searchQ) || (v.en||"").toLowerCase().includes(searchQ.toLowerCase())))
+                : addCat ? Object.entries(window.P).filter(([k,v]) => v.cat===addCat && !cur.acts.some(a=>a.pk===k))
+                : []
+              ).map(([k,v]) => (
+                <button key={k} onClick={()=>{onAdd(cur.id,k);setAddOpen(false);setSearchQ("");setAddCat(null);}} style={{
+                  display:"flex",gap:12,alignItems:"center",
+                  padding:10, border:"1.5px solid #f0ece3",borderRadius:14,
+                  background:"#fff", fontFamily:"inherit", textAlign:"left",
+                  cursor:"pointer", width:"100%",
+                }}>
+                  <div style={{
+                    width:48,height:48,borderRadius:12,
+                    background: window.CATS[v.cat]?.grad,
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    fontSize:22, color:"#fff",
+                  }}>{v.img}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:700,fontSize:"calc(14px * var(--fs))"}}>{v.t} <span style={{fontSize:"calc(10px * var(--fs))",color:"#f59e0b"}}>★{v.rat}</span></div>
+                    <div style={{fontSize:"calc(11px * var(--fs))",color:"#888"}}>{descOf(v, lang)}</div>
+                    <div style={{fontSize:"calc(10px * var(--fs))",color:"#aaa",marginTop:2}}>💰 {v.bud} · ⏱ {window.DUR[k]||60}{T(lang,"น","m")}</div>
+                  </div>
+                  <span style={{fontSize:18,color:"#0a8a6c"}}>+</span>
+                </button>
+              ))}
+              {!searchQ && !addCat && (
+                <div style={{textAlign:"center",padding:30,color:"#bbb",fontSize:"calc(13px * var(--fs))"}}>
+                  👆 {T(lang, I18N.pickCat.th, I18N.pickCat.en)}
+                </div>
+              )}
+            </div>
+            {/* Google Maps search + add form */}
+            {searchQ && searchQ.length >= 2 && (
+              <div style={{marginTop:12}}>
+                {/* Map search results */}
+                {mapLoading && <div style={{textAlign:"center",padding:12,color:"#999"}}>⏳ {T(lang,"กำลังค้นหา...","Searching...")}</div>}
+                {mapResults.length > 0 && mapResults.map((r,i) => (
+                  <button key={i} onClick={()=>{
+                    customAdd(cur.id, r.name, r.autoCat, r.lat, r.lng, r.addr, {cuisine:r.cuisine, rating:r.rating, opening:r.opening});
+                    setAddOpen(false);setSearchQ("");setAddCat(null);setMapResults([]);
+                  }} style={{
+                    display:"flex",gap:10,alignItems:"center",
+                    padding:"10px 12px", border:"1.5px solid #c5e1f5",borderRadius:14,
+                    background:"#f0f8ff", fontFamily:"inherit", textAlign:"left",
+                    cursor:"pointer", width:"100%", marginBottom:6,
+                  }}>
+                    <div style={{
+                      width:40,height:40,borderRadius:10,
+                      background: window.CATS[r.autoCat] ? window.CATS[r.autoCat].grad : "linear-gradient(135deg,#4285f4,#1a73e8)",
+                      display:"flex",alignItems:"center",justifyContent:"center",
+                      fontSize:18, color:"#fff", flexShrink:0,
+                    }}>{window.CATS[r.autoCat] ? window.CATS[r.autoCat].i : "📍"}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontWeight:700,fontSize:"calc(13px * var(--fs))",color:"#1a1a2e"}}>{r.name}</div>
+                      <div style={{fontSize:"calc(10px * var(--fs))",color:"#888",marginTop:2}}>📍 {r.addr}</div>
+                      <div style={{display:"flex",gap:4,marginTop:3,flexWrap:"wrap"}}>
+                        {r.autoCat && window.CATS[r.autoCat] && <span style={{fontSize:"calc(9px * var(--fs))",fontWeight:600,color:window.CATS[r.autoCat].c,background:window.CATS[r.autoCat].c+"15",padding:"1px 6px",borderRadius:5}}>{window.CATS[r.autoCat].i} {window.CATS[r.autoCat][lang]||r.type}</span>}
+                        {r.cuisine && <span style={{fontSize:"calc(9px * var(--fs))",color:"#fb8500",background:"#fb850015",padding:"1px 6px",borderRadius:5}}>🍽️ {r.cuisine}</span>}
+                      </div>
+                    </div>
+                    <span style={{fontSize:16,color:"#1a73e8"}}>+</span>
+                  </button>
+                ))}
+                {/* Always show Google Maps link */}
+                <a href={`https://www.google.com/maps/search/${encodeURIComponent(searchQ+" Da Nang")}`}
+                  target="_blank" rel="noopener"
+                  style={{
+                    display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+                    width:"100%", padding:"10px 14px", borderRadius:14,
+                    background:"linear-gradient(135deg,#4285f4,#1a73e8)",
+                    color:"#fff", textDecoration:"none", fontFamily:"inherit",
+                    fontWeight:700, fontSize:"calc(12px * var(--fs))",
+                    marginBottom:8, marginTop:8,
+                  }}>
+                  🗺️ {T(lang,`ดู "${searchQ}" บน Google Maps`,`View "${searchQ}" on Google Maps`)}
+                </a>
+                {/* Quick add with address from Google Maps */}
+                {(() => {
+                  const bestMatch = mapResults.length > 0 ? mapResults[0] : null;
+                  return (
+                  <div style={{padding:"10px 12px",border:"1.5px solid #e8f0fe",borderRadius:14,background:"#f8faff"}}>
+                    <div style={{fontSize:"calc(11px * var(--fs))",fontWeight:700,color:"#1a73e8",marginBottom:6}}>
+                      ➕ {T(lang,`เพิ่ม "${searchQ}" เข้าทริป`,`Add "${searchQ}" to trip`)}
+                    </div>
+                    {bestMatch && <div style={{fontSize:"calc(10px * var(--fs))",color:"#06d6a0",marginBottom:4}}>✓ {T(lang,"พบที่อยู่:","Found address:")} {bestMatch.addr}</div>}
+                    {!bestMatch && <div style={{marginBottom:6}}>
+                      <div style={{fontSize:"calc(10px * var(--fs))",color:"#888",marginBottom:3}}>📍 {T(lang,"วางที่อยู่จาก Google Maps:","Paste address from Google Maps:")}</div>
+                      <input id="addrInput" placeholder={T(lang,"เช่น 265 Phan Châu Trinh, Hải Châu","e.g. 265 Phan Châu Trinh")}
+                        onClick={e=>e.stopPropagation()}
+                        style={{width:"100%",padding:"6px 10px",borderRadius:8,border:"1.5px solid #e0d8c8",fontFamily:"inherit",fontSize:"calc(11px * var(--fs))",outline:"none"}}/>
+                    </div>}
+                    <div style={{fontSize:"calc(10px * var(--fs))",color:"#888",marginBottom:4}}>{T(lang,"เลือกหมวด:","Pick category:")}</div>
+                    <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                      {Object.entries(window.CATS).map(([k,v]) => (
+                        <button key={k} onClick={()=>{
+                          const addrEl = document.getElementById("addrInput");
+                          const typedAddr = addrEl ? addrEl.value : "";
+                          customAdd(cur.id, bestMatch?.name||searchQ, k,
+                            bestMatch?.lat||16.06, bestMatch?.lng||108.24,
+                            bestMatch?.addr || typedAddr || "Da Nang, Vietnam",
+                            {cuisine:bestMatch?.cuisine, rating:bestMatch?.rating});
+                          setAddOpen(false);setSearchQ("");setAddCat(null);setMapResults([]);
+                        }} style={{
+                          padding:"6px 10px", borderRadius:10,
+                          border:`1.5px solid ${v.c}55`, background:`${v.c}10`,
+                          color:v.c, fontFamily:"inherit", fontWeight:600,
+                          fontSize:"calc(11px * var(--fs))", cursor:"pointer",
+                        }}>{v.i} {v[lang]||v.en}</button>
+                      ))}
+                    </div>
+                  </div>);
+                })()}
+              </div>
+            )}
+            <button onClick={()=>{setAddOpen(false);setAddCat(null);setSearchQ("");}} style={{
+              width:"100%", marginTop:14, padding:"12px",
+              background:"#f0ece3", border:"none", borderRadius:14,
+              fontFamily:"inherit", fontWeight:700,
+              fontSize:"calc(14px * var(--fs))", color:"#666", cursor:"pointer",
+            }}>{T(lang, I18N.cancel.th, I18N.cancel.en)}</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Map Screen =====
+function MapScreen({days, ad, setAd, lang}){
+  const cur = days.find(d => d.id === ad);
+  // Only show stops within Da Nang area on the map (filter out BKK transit pins)
+  const stops = cur ? cur.acts.map((a,i)=>({...res(a),idx:i}))
+    .filter(r=>r.lat && r.lat > 14.5 && r.lat < 17.5 && r.lng > 107 && r.lng < 109) : [];
+  const [activeStop, setActiveStop] = useState(0);
+
+  // bounds
+  const lats = stops.map(s=>s.lat), lngs = stops.map(s=>s.lng);
+  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+  const padX = (maxLng-minLng)*0.15+0.005, padY=(maxLat-minLat)*0.15+0.005;
+  const W=400, H=460;
+  const proj = (lat,lng) => {
+    const x = ((lng-(minLng-padX))/((maxLng+padX)-(minLng-padX))) * W;
+    const y = H - ((lat-(minLat-padY))/((maxLat+padY)-(minLat-padY))) * H;
+    return [x,y];
+  };
+  const pathD = stops.map((s,i)=>{const [x,y]=proj(s.lat,s.lng);return (i===0?"M":"L")+x+" "+y;}).join(" ");
+
+  return (
+    <div style={{padding:"0 16px 100px"}}>
+      {/* Day swiper */}
+      <div style={{display:"flex",gap:6,padding:"10px 0 14px",overflowX:"auto"}}>
+        {days.map(d => (
+          <button key={d.id} onClick={()=>{setAd(d.id);setActiveStop(0);}} style={{
+            minWidth:64, padding:"8px 0", textAlign:"center",
+            border:"none", borderRadius:12,
+            background: ad===d.id ? d.c2 : "#fff",
+            color: ad===d.id ? "#fff" : "#666",
+            fontFamily:"inherit", fontWeight:700, cursor:"pointer",
+            fontSize:"calc(12px * var(--fs))",
+          }}>{(window.INIT.find(x=>x.id===d.id)||d).ti} D{d.id}</button>
+        ))}
+      </div>
+
+      {cur && (
+        <>
+          <div style={{
+            background:"linear-gradient(180deg,#cfe9f0,#e6f4f7)",
+            borderRadius:20, overflow:"hidden", position:"relative",
+            border:`2px solid ${cur.c2}33`,
+            marginBottom:12,
+          }}>
+            <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="auto" style={{display:"block"}}>
+              {/* fake roads */}
+              <defs>
+                <pattern id="grid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(0,0,0,0.04)" strokeWidth="1"/>
+                </pattern>
+              </defs>
+              <rect width={W} height={H} fill="url(#grid)"/>
+              {/* river suggestion */}
+              <path d={`M 0 ${H*0.55} Q ${W*0.5} ${H*0.45} ${W} ${H*0.6}`} stroke="#bcdfe8" strokeWidth="20" fill="none" opacity=".7"/>
+              {/* coast */}
+              <path d={`M ${W} 0 L ${W} ${H} L ${W-30} ${H}`} fill="rgba(105,182,196,0.2)" stroke="rgba(105,182,196,0.4)" strokeWidth="2"/>
+
+              {/* route */}
+              <path d={pathD} stroke={cur.c2} strokeWidth="3" fill="none" strokeDasharray="6 5" strokeLinecap="round"/>
+
+              {/* pins */}
+              {stops.map((s,i)=>{
+                const [x,y] = proj(s.lat,s.lng);
+                const active = i===activeStop;
+                return (
+                  <g key={i} onClick={()=>setActiveStop(i)} style={{cursor:"pointer"}}>
+                    <circle cx={x} cy={y+18} r={active?6:4} fill="rgba(0,0,0,0.15)"/>
+                    <path d={`M ${x} ${y-30} a 14 14 0 1 0 0.001 0`} fill={active?cur.c2:"#fff"} stroke={cur.c2} strokeWidth="2.5"/>
+                    <circle cx={x} cy={y-16} r="14" fill={active?cur.c2:"#fff"}/>
+                    <text x={x} y={y-11} textAnchor="middle" fontSize="14" fill={active?"#fff":cur.c2}>{i+1}</text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* Stop swiper */}
+          <div style={{display:"flex",gap:8,overflowX:"auto",margin:"0 -16px",padding:"0 16px 4px"}}>
+            {stops.map((s,i)=>(
+              <button key={i} onClick={()=>setActiveStop(i)} style={{
+                minWidth:160,
+                padding:"10px 12px",
+                border: i===activeStop ? `2px solid ${cur.c2}` : "2px solid #f0ece3",
+                background: i===activeStop ? "#fff" : "#fff",
+                borderRadius:14, fontFamily:"inherit", textAlign:"left",
+                cursor:"pointer", flexShrink:0,
+                boxShadow: i===activeStop ? `0 6px 14px ${cur.c2}33` : "none",
+                transition:"all .2s",
+              }}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{
+                    width:22,height:22,borderRadius:"50%",
+                    background:cur.c2,color:"#fff",fontWeight:700,fontSize:"calc(11px * var(--fs))",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                  }}>{i+1}</span>
+                  <span style={{fontSize:"calc(11px * var(--fs))",color:"#999",fontWeight:700}}>{s.time}</span>
+                </div>
+                <div style={{fontWeight:700,fontSize:"calc(14px * var(--fs))",color:"#1a1a2e",lineHeight:1.2}}>{s.t}</div>
+                <div style={{fontSize:"calc(11px * var(--fs))",color:"#888",marginTop:2}}>{s.img} {descOf(s,lang).slice(0,30)}</div>
+              </button>
+            ))}
+          </div>
+
+          {/* Open in Google Maps */}
+          {stops[activeStop] && (
+            <a href={`https://www.google.com/maps/search/${encodeURIComponent((stops[activeStop].t||"")+" "+(stops[activeStop].addr||"")+" Da Nang")}`}
+              target="_blank" rel="noopener" style={{
+              display:"block", marginTop:14,
+              background:"linear-gradient(135deg,#4285f4,#1a73e8)", color:"#fff",
+              padding:"14px", borderRadius:14, textAlign:"center",
+              textDecoration:"none", fontWeight:700, fontSize:"calc(14px * var(--fs))",
+            }}>{T(lang, I18N.open.th, I18N.open.en)}</a>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ===== Budget Screen =====
+function BudgetScreen({days, lang}){
+  const totals = days.map(d => {
+    const sum = d.acts.reduce((s,a) => {
+      if(!a.pk) return s;
+      const r = window.P[a.pk];
+      if(!r) return s;
+      return s + parseBud(r.bud);
+    }, 0);
+    return {day:d, sum};
+  });
+  const grand = totals.reduce((s,t)=>s+t.sum,0);
+  const maxSum = Math.max(...totals.map(t=>t.sum), 1);
+
+  return (
+    <div style={{padding:"10px 16px 100px"}}>
+      <div style={{
+        background:"linear-gradient(135deg,#7BC9B6,#69b6c4)",
+        color:"#fff", borderRadius:24, padding:"22px 22px",
+        boxShadow:"0 10px 30px rgba(0,0,0,0.1)",
+        marginBottom:18,
+      }}>
+        <div style={{fontSize:"calc(12px * var(--fs))",opacity:.85,letterSpacing:2,fontWeight:700}}>
+          💰 {T(lang, I18N.total.th, I18N.total.en).toUpperCase()} · {T(lang, I18N.perPerson.th, I18N.perPerson.en)}
+        </div>
+        <div style={{fontSize:"calc(34px * var(--fs))",fontWeight:700,marginTop:4}}>
+          {Math.round(grand/1000)}k₫
+        </div>
+        <div style={{fontSize:"calc(15px * var(--fs))",opacity:.9}}>
+          ≈ {Math.round(grand*VND_TO_THB).toLocaleString()} ฿
+        </div>
+        <div style={{fontSize:"calc(11px * var(--fs))",opacity:.75,marginTop:6}}>
+          {T(lang,"ประมาณการ ไม่รวมที่พัก/เครื่อง","Estimate · excludes hotel & flights")}
+        </div>
+      </div>
+
+      {totals.map(({day,sum}) => (
+        <div key={day.id} style={{
+          background:"#fff", borderRadius:18, padding:"14px 16px",
+          marginBottom:12, border:`2px solid ${day.c2}22`,
+        }}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div>
+              <div style={{fontSize:"calc(11px * var(--fs))",color:"#999",fontWeight:700,letterSpacing:1}}>
+                DAY {day.id} · {((window.INIT.find(x=>x.id===day.id)||{}).dl||{})[lang]||dl.en}
+              </div>
+              <div style={{fontSize:"calc(15px * var(--fs))",fontWeight:700,color:"#1a1a2e"}}>
+                {(window.INIT.find(x=>x.id===day.id)||day).ti} {day.th[lang]||day.th.en}
+              </div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:"calc(20px * var(--fs))",fontWeight:700,color:day.c2}}>
+                {Math.round(sum/1000)}k₫
+              </div>
+              <div style={{fontSize:"calc(11px * var(--fs))",color:"#aaa"}}>
+                ≈ {Math.round(sum*VND_TO_THB).toLocaleString()} ฿
+              </div>
+            </div>
+          </div>
+          {/* bar */}
+          <div style={{height:8,background:"#f0ece3",borderRadius:4,overflow:"hidden",marginBottom:10}}>
+            <div style={{
+              height:"100%", width:`${(sum/maxSum)*100}%`,
+              background:`linear-gradient(90deg,${day.c},${day.c2})`,
+              borderRadius:4, transition:"width .5s",
+            }}/>
+          </div>
+          {/* line items */}
+          <div style={{display:"flex",flexDirection:"column",gap:5}}>
+            {day.acts.filter(a=>a.pk && window.P[a.pk]?.bud && window.P[a.pk].bud!=="free" && window.P[a.pk].bud!=="—").map((a,i) => {
+              const r = window.P[a.pk];
+              return (
+                <div key={i} style={{
+                  display:"flex",alignItems:"center",gap:8,
+                  fontSize:"calc(12px * var(--fs))",
+                  paddingTop:5, borderTop: i===0?"none":"1px dashed #f0ece3",
+                }}>
+                  <span style={{fontSize:18,width:22}}>{r.img}</span>
+                  <span style={{flex:1,color:"#555"}}>{r.t}</span>
+                  <span style={{color:"#999",fontWeight:700}}>{r.bud}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ===== Pack Screen =====
+function PackScreen({days, lang, packed, setPacked}){
+  const totalItems = window.PACK_LIST.reduce((s,c)=>s+c.items.length,0);
+  const checkedCount = Object.values(packed).filter(Boolean).length;
+
+  return (
+    <div style={{padding:"10px 16px 100px"}}>
+      <div style={{
+        background:"linear-gradient(135deg,#e89b9b,#f5a6b8)",
+        color:"#fff", borderRadius:24, padding:"22px",
+        marginBottom:18, boxShadow:"0 10px 30px rgba(0,0,0,0.1)",
+      }}>
+        <div style={{fontSize:"calc(12px * var(--fs))",opacity:.85,letterSpacing:2,fontWeight:700}}>
+          🎒 {T(lang,"แพ็คกระเป๋า","PACKING").toUpperCase()}
+        </div>
+        <div style={{fontSize:"calc(34px * var(--fs))",fontWeight:700,marginTop:4}}>
+          {checkedCount}/{totalItems}
+        </div>
+        <div style={{height:8,background:"rgba(255,255,255,0.3)",borderRadius:4,marginTop:8,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${(checkedCount/totalItems)*100}%`,background:"#fff",borderRadius:4,transition:"width .3s"}}/>
+        </div>
+        <div style={{fontSize:"calc(12px * var(--fs))",opacity:.85,marginTop:6}}>
+          {T(lang, I18N.packLeft.th, I18N.packLeft.en)} {totalItems-checkedCount} {T(lang,"ชิ้น","items")}
+        </div>
+      </div>
+
+
+      {/* Clothing packing checklist */}
+      <div style={{fontSize:"calc(13px * var(--fs))",fontWeight:700,color:"#666",marginBottom:8,letterSpacing:1}}>
+        👗 {T(lang,"เตรียมเสื้อผ้า (4 วัน 3 คืน)","CLOTHING CHECKLIST (4D3N)")}
+      </div>
+      <div style={{background:"#fff",borderRadius:14,padding:"14px 16px",marginBottom:10,border:"1.5px solid #f0ece3"}}>
+        {[
+          {th:"👚 เสื้อยืด/เสื้อแขนสั้น",en:"👚 T-shirts / tops",qty:"4-5 ตัว"},
+          {th:"👗 เดรส/ชุดเที่ยว",en:"👗 Dresses / outfits",qty:"2 ตัว"},
+          {th:"🩳 กางเกงขาสั้น/ผ้า",en:"🩳 Shorts / pants",qty:"3 ตัว"},
+          {th:"👙 ชุดว่ายน้ำ",en:"👙 Swimsuit",qty:"2 ชุด"},
+          {th:"🧥 เสื้อกันแดด/คลุมเข้าวัด",en:"🧥 Sun cover / temple shawl",qty:"1 ตัว"},
+          {th:"🩲 ชุดชั้นใน",en:"🩲 Underwear",qty:"4-5 ชุด"},
+          {th:"🧦 ถุงเท้า",en:"🧦 Socks",qty:"3 คู่"},
+          {th:"👟 รองเท้าผ้าใบ",en:"👟 Sneakers",qty:"1 คู่"},
+          {th:"🩴 รองเท้าแตะ/แบบ",en:"🩴 Sandals / flip-flops",qty:"1 คู่"},
+          {th:"🧢 หมวก",en:"🧢 Hat",qty:"1 ใบ"},
+          {th:"😎 แว่นกันแดด",en:"😎 Sunglasses",qty:"1 อัน"},
+        ].map((item,i) => (
+          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:i<10?"1px solid #f5f0eb":"none"}}>
+            <span style={{fontSize:"calc(12px * var(--fs))",color:"#444"}}>{T(lang,item.th,item.en)}</span>
+            <span style={{fontSize:"calc(11px * var(--fs))",fontWeight:600,color:"#0096c7",background:"#0096c708",padding:"2px 8px",borderRadius:6}}>{item.qty}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{height:18}}/>
+      <div style={{fontSize:"calc(13px * var(--fs))",fontWeight:700,color:"#666",marginBottom:8,letterSpacing:1}}>
+        ✅ {T(lang,"เช็คลิสต์","CHECKLIST")}
+      </div>
+      {window.PACK_LIST.map(cat => (
+        <div key={cat.cat.en} style={{
+          background:"#fff", borderRadius:14, padding:"12px 14px",
+          marginBottom:10, border:"1.5px solid #f0ece3",
+        }}>
+          <div style={{fontWeight:700,fontSize:"calc(14px * var(--fs))",marginBottom:6,color:"#1a1a2e"}}>
+            {cat.cat[lang]||cat.cat.en}
+          </div>
+          {cat.items.map(it => {
+            const key = it.en;
+            const checked = !!packed[key];
+            return (
+              <label key={key} style={{
+                display:"flex", alignItems:"center", gap:10,
+                padding:"7px 0", cursor:"pointer",
+                borderTop:"1px dashed #f5f0e6",
+              }}>
+                <div style={{
+                  width:24,height:24,borderRadius:8,
+                  border:`2px solid ${checked?"#7BC9B6":"#ddd"}`,
+                  background: checked ? "#7BC9B6" : "#fff",
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  flexShrink:0, transition:"all .15s",
+                }}>{checked && <span style={{color:"#fff",fontSize:14,fontWeight:700}}>✓</span>}</div>
+                <input type="checkbox" checked={checked} onChange={e=>setPacked({...packed,[key]:e.target.checked})} style={{display:"none"}}/>
+                <span style={{
+                  fontSize:"calc(13px * var(--fs))",
+                  color: checked?"#aaa":"#1a1a2e",
+                  textDecoration: checked?"line-through":"none",
+                  flex:1,
+                }}>{it[lang]||it.en}</span>
+              </label>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ===== Main App =====
+function App(){
+  const tweaksHook = (typeof window.useTweaks==="function") ? window.useTweaks(TWEAKS) : null;
+  const t = tweaksHook ? tweaksHook[0] : TWEAKS;
+  const setTweak = tweaksHook ? tweaksHook[1] : ()=>{};
+  const SAVE_KEY = "danang_trip_v8";
   const isRemote = useRef(false);
   const hasSynced = useRef(false);
   const dbRef = useRef(null);
   const [syncStatus, setSyncStatus] = useState("connecting");
 
   const loadSaved = () => {
-    try {
-      const s = localStorage.getItem(SAVE_KEY);
-      if (s) { const d = JSON.parse(s); if (d && d.length === 4) return d; }
-    } catch(e) {}
+    try { const s = localStorage.getItem(SAVE_KEY); if(s){ const d = JSON.parse(s); if(d && d.length===4) return d; } } catch(e){}
     return null;
   };
+  const loadPacked = () => {
+    try { return JSON.parse(localStorage.getItem(SAVE_KEY+"_pack")||"{}"); } catch(e){ return {}; }
+  };
 
-  const [days, setDays] = useState(() => loadSaved() || INIT);
+  const [days, setDays] = useState(() => loadSaved() || window.INIT);
+  const [packed, setPackedState] = useState(loadPacked);
   const [ad, setAd] = useState(1);
-  const [addMenu, setAddMenu] = useState(null);
-  const [addCat, setAddCat] = useState(null);
-  const [showImport, setShowImport] = useState(false);
+  const [tab, setTab] = useState("trip");
+  const [lang, setLang] = useState(t.lang || "th");
 
-  // Firebase real-time listener
+  // Firebase sync
   useEffect(() => {
     let cancelled = false;
-    let unsubs = [];
-
-    function tryConnect() {
-      if (cancelled) return;
-      if (!window._fbReady || !window._fbDb) {
-        setTimeout(tryConnect, 600);
-        return;
-      }
-      const planRef = window._fbRef(window._fbDb, "plan");
+    function tryConnect(){
+      if(cancelled) return;
+      if(!window._fb){ setTimeout(tryConnect,600); return; }
+      const planRef = window._fb.ref("plan");
       dbRef.current = planRef;
-
-      const unsub1 = window._fbOnValue(planRef, (snap) => {
+      planRef.on("value", (snap) => {
         const data = snap.val();
-        if (data && Array.isArray(data) && data.length === 4) {
-          isRemote.current = true;
-          setDays(data);
-        } else if (!data && !hasSynced.current) {
-          // Firebase empty (first time) — push local data up
-          window._fbSet(planRef, INIT);
+        if(data && Array.isArray(data) && data.length===4){
+          isRemote.current = true; setDays(data);
+        } else if(!data && !hasSynced.current){
+          planRef.set(window.INIT);
         }
-        hasSynced.current = true;
-        setSyncStatus("synced");
+        hasSynced.current = true; setSyncStatus("synced");
       });
-      unsubs.push(unsub1);
-
-      const connRef = window._fbRef(window._fbDb, ".info/connected");
-      const unsub2 = window._fbOnValue(connRef, (snap) => {
-        if (!cancelled) setSyncStatus(snap.val() ? "synced" : "offline");
-      });
-      unsubs.push(unsub2);
+      const conn = window._fb.ref(".info/connected");
+      conn.on("value", s => { if(!cancelled) setSyncStatus(s.val()?"synced":"offline"); });
     }
     tryConnect();
-
-    return () => { cancelled = true; unsubs.forEach(u => u && u()); };
+    return () => { cancelled=true; if(dbRef.current) dbRef.current.off(); };
   }, []);
 
-  // Save: localStorage always, Firebase only AFTER first sync
   useEffect(() => {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(days)); } catch(e) {}
-
-    if (isRemote.current) {
-      isRemote.current = false;
-      return;
-    }
-    if (hasSynced.current && dbRef.current && window._fbSet) {
-      window._fbSet(dbRef.current, days);
-    }
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(days)); } catch(e){}
+    if(isRemote.current){ isRemote.current=false; return; }
+    if(hasSynced.current && dbRef.current) dbRef.current.set(days);
   }, [days]);
 
-  const resetAll = () => {
-    if (confirm("รีเซ็ตแพลนทั้งหมดกลับเป็นค่าเริ่มต้น?")) {
-      setDays(INIT);
-      localStorage.removeItem(SAVE_KEY);
+  useEffect(() => { try { localStorage.setItem(SAVE_KEY+"_pack", JSON.stringify(packed)); } catch(e){} }, [packed]);
+
+  // FS scale
+  useEffect(() => {
+    document.documentElement.style.setProperty('--fs', t.fontScale || 1);
+  }, [t.fontScale]);
+
+  const onSwap = (di,ai,nk) => setDays(p => p.map(d => d.id!==di?d:{...d,acts:d.acts.map((a,i)=>i===ai?{pk:nk,time:a.time}:a)}));
+  const onMove = (di,ai,dir) => setDays(p => p.map(d => {
+    if(d.id!==di) return d;
+    const a = [...d.acts]; const ni = ai+dir;
+    if(ni<0||ni>=a.length) return d;
+    [a[ai],a[ni]] = [a[ni],a[ai]]; return {...d,acts:a};
+  }));
+  const onRemove = (di,ai) => setDays(p => p.map(d => d.id!==di?d:{...d,acts:d.acts.filter((_,i)=>i!==ai)}));
+
+  const onTimeChange = (di,ai,newTime) => setDays(prev => prev.map(d => {
+    if(d.id!==di) return d;
+    const acts = [...d.acts];
+    acts[ai] = {...acts[ai], time:newTime};
+    const parseT = t => { const m=t.match(/(\d{1,2}):(\d{2})/); return m?parseInt(m[1])*60+parseInt(m[2]):null; };
+    const fmtT = m => { const h=Math.floor(m/60)%24; const mn=m%60; return `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`; };
+    let prevMin = parseT(newTime);
+    if(prevMin===null) return {...d, acts};
+    const prevR = res(acts[ai]);
+    prevMin += prevR.dur||60;
+    for(let j=ai+1;j<acts.length;j++){
+      if(acts[j].fix) continue;
+      const rr = res(acts[j]);
+      const travelMin = Math.max(5, Math.round((window.dist(prevR,rr)||2)*3));
+      acts[j] = {...acts[j], time: fmtT(prevMin+travelMin)};
+      prevMin = prevMin+travelMin+(rr.dur||60);
     }
+    return {...d, acts};
+  }));
+  const onAdd = (di,pk) => setDays(p => p.map(d => {
+    if(d.id!==di) return d;
+    if(d.acts.some(a=>a.pk===pk)) return d;
+    return {...d, acts:[...d.acts, {pk, time:"—"}]};
+  }));
+
+  const onCustomAdd = (di, name, cat, lat, lng, addr, extra) => setDays(p => p.map(d => {
+    if(d.id!==di) return d;
+    const ci = window.CATS[cat] || window.CATS.activity;
+    const defaults = {
+      cafe:{pay:"💵/💳",bud:"40-80k₫",dur:45},
+      food:{pay:"💵/💳",bud:"100-300k₫",dur:60},
+      shopping:{pay:"💵/💳",bud:"ตามชิ้น",dur:60},
+      activity:{pay:"💵/💳",bud:"ดูหน้าร้าน",dur:60},
+      nightlife:{pay:"💵/💳",bud:"100-300k₫",dur:90},
+    }[cat] || {pay:"💵/💳",bud:"ดูหน้าร้าน",dur:60};
+    const cuisine = extra?.cuisine ? " · "+extra.cuisine : "";
+    return {...d, acts:[...d.acts, {
+      fix:false, id:"map_"+Date.now(), time:"—",
+      t:name,
+      th: smartDesc(name, cat, "th") + cuisine,
+      en: smartDesc(name, cat, "en") + cuisine,
+      cat:cat, img:ci.i, addr:addr||"Da Nang, Vietnam",
+      lat:lat||16.06, lng:lng||108.24,
+      pay:defaults.pay, bud:defaults.bud,
+      rat:extra?.rating||"ดูบน Maps", z:"HC", dur:defaults.dur,
+      hrs:extra?.opening||null,
+    }]};
+  }));
+
+  const {pull, refreshing} = usePullRefresh(async () => {
+    if(dbRef.current) {
+      const snap = await dbRef.current.once('value');
+      const data = snap.val();
+      if(data) setDays(data);
+    }
+  });
+
+  const switchLang = () => {
+    const nl = lang==="th"?"en":"th";
+    setLang(nl); setTweak('lang', nl);
   };
 
-  const swap=(di,ai,nk)=>setDays(p=>p.map(d=>d.id!==di?d:{...d,acts:d.acts.map((a,i)=>i===ai?{pk:nk,time:a.time}:a)}));
-  const mv=(di,ai,dir)=>setDays(p=>p.map(d=>{if(d.id!==di)return d;const a=[...d.acts];const ni=ai+dir;if(ni<0||ni>=a.length)return d;[a[ai],a[ni]]=[a[ni],a[ai]];return{...d,acts:a};}));
-  const remove=(di,ai)=>setDays(p=>p.map(d=>d.id!==di?d:{...d,acts:d.acts.filter((_,i)=>i!==ai)}));
-  const addAct=(di,pk)=>{setDays(p=>p.map(d=>{if(d.id!==di)return d;if(d.acts.some(a=>a.pk===pk))return d;return{...d,acts:[...d.acts,{pk,time:"—"}]};}));setAddMenu(null);};
-  const changeTime=(di,ai,newTime)=>{
-    setDays(prev=>prev.map(d=>{
-      if(d.id!==di)return d;
-      const acts=[...d.acts];
-      acts[ai]={...acts[ai],time:newTime};
-      const parseT=t=>{const m=t.match(/(\d{1,2}):(\d{2})/);return m?parseInt(m[1])*60+parseInt(m[2]):null;};
-      const fmtT=m=>{const h=Math.floor(m/60)%24;const mn=m%60;return`${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;};
-      let prevMin=parseT(newTime);
-      if(prevMin===null)return{...d,acts};
-      const prevR=res(acts[ai]);
-      prevMin+=prevR.dur||60;
-      for(let j=ai+1;j<acts.length;j++){
-        if(acts[j].fix)continue;
-        const rr=res(acts[j]);
-        const travelMin=Math.max(5,Math.round((dist(prevR,rr)||2)*3));
-        const arriveMin=prevMin+travelMin;
-        acts[j]={...acts[j],time:fmtT(arriveMin)};
-        prevMin=arriveMin+(rr.dur||60);
-      }
-      return{...d,acts};
-    }));
-  };
+  const tabBg = "#fffaf3";
+  const statusColor = syncStatus==="synced"?"#0a8a6c":syncStatus==="connecting"?"#c97c2a":"#888";
 
-  const cur=days.find(d=>d.id===ad);
-  const findD=pk=>days.find(d=>d.acts.some(a=>a.pk===pk));
-  const checks=[
-    {l:"☕ทุกวัน",p:days.every(d=>d.acts.some(a=>a.pk&&P[a.pk]?.cat==="cafe"))},
-    {l:"🛍️2วัน",p:days.filter(d=>d.acts.some(a=>a.pk&&P[a.pk]?.cat==="shopping")).length>=2},
-    {l:"🍢≠🍺",p:(()=>{const a=findD("night_sontra"),b=findD("night_buffalo");return!a||!b||a.id!==b.id;})()},
-    {l:"🙏≠🧊",p:(()=>{const a=findD("act_temple"),b=findD("act_ice");return!a||!b||a.id!==b.id;})()},
-    {l:"💆ท้าย",p:(()=>{const s=findD("act_spa");return!s||s.id>=3;})()},
-  ];
-
-  const statusColor = syncStatus==="synced"?"#06d6a0":syncStatus==="connecting"?"#ffa62b":"#888";
-  const statusText = syncStatus==="synced"?"🟢 Synced กับเพื่อน":syncStatus==="connecting"?"🟡 กำลังเชื่อมต่อ...":syncStatus==="local"?"💾 Local (ไม่มี Firebase)":"🔴 Offline";
-
-  return(
-  <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#e0f7fa 0%,#fff9e6 25%,#fce4ec 50%,#e8f5e9 75%,#e3f2fd 100%)",fontFamily:"'Outfit',sans-serif",WebkitTextSizeAdjust:"100%"}}>
-    <style>{`@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}*{box-sizing:border-box}body{margin:0;font-size:14px}.cd{transition:all .2s}.cd:hover{transform:translateY(-1px);box-shadow:0 2px 10px rgba(0,0,0,0.07)!important}.bs{border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;background:rgba(0,0,0,0.04)}.bs:hover{background:rgba(0,0,0,0.1)}`}</style>
-    <svg viewBox="0 0 1440 50" style={{display:"block",width:"100%",height:22}}><path d="M0,25C400,50,800,0,1200,25L1440,25L1440,50L0,50Z" fill="rgba(17,138,178,0.04)"/></svg>
-    <div style={{maxWidth:760,margin:"0 auto",padding:"0 16px 40px",zoom:1.35}}>
-      {/* Sync status bar */}
-      <div style={{textAlign:"center",marginBottom:6}}>
-        <span style={{fontSize:10,fontWeight:600,color:statusColor,background:statusColor+"15",padding:"3px 10px",borderRadius:20}}>{statusText}</span>
-      </div>
-      <div style={{textAlign:"center",marginBottom:16}}>
-        <div style={{fontSize:32}}>🌊🌺🍋</div>
-        <h1 style={{fontFamily:"'Outfit',sans-serif",fontSize:26,fontWeight:800,color:"#1a1a2e",margin:"4px 0"}}>Da Nang มีจริงแล้ว</h1>
-        <div style={{fontSize:16}}>°.🐚⋆🌺˖°🫧</div>
-        <p style={{color:"#888",fontSize:13,margin:"4px 0"}}>kk + 2 friends · 29 May — 1 Jun 2026</p>
-        <p style={{color:"#aaa",fontSize:11,margin:0}}>แตะ = ดูรายละเอียด · 🔄 สลับ · ✕ ลบ · + เพิ่ม</p>
-      </div>
-      <div style={{display:"flex",flexWrap:"wrap",gap:"3px 5px",justifyContent:"center",background:"rgba(255,255,255,0.6)",borderRadius:8,padding:"4px 8px",marginBottom:7}}>
-        {checks.map((c,i)=><span key={i} style={{fontSize:8,fontWeight:600,color:c.p?"#06d6a0":"#ef476f",padding:"1px 4px",borderRadius:3,background:c.p?"#06d6a008":"#ef476f08"}}>{c.p?"✓":"✗"}{c.l}</span>)}
-      </div>
-      <div style={{display:"flex",gap:3,marginBottom:7}}>
-        {days.map(d=><button key={d.id} onClick={()=>{setAd(d.id);setAddMenu(null);setAddCat(null);}} style={{flex:1,padding:"5px 2px",border:ad===d.id?`2px solid ${d.c}`:"1.5px solid rgba(0,0,0,0.04)",borderRadius:8,background:ad===d.id?`${d.c}12`:"rgba(255,255,255,0.4)",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
-          <div style={{fontSize:11}}>{d.ti}</div>
-          <div style={{fontWeight:700,fontSize:8,color:ad===d.id?d.c:"#999"}}>DAY{d.id}</div>
-          <div style={{fontSize:7,color:"#bbb"}}>{d.date}</div>
-        </button>)}
-      </div>
-      {cur&&<div style={{background:`linear-gradient(135deg,${cur.c}08,${cur.c}03)`,borderRadius:12,padding:10,border:`1.5px solid ${cur.c}28`,animation:"fi .3s"}}>
-        <div style={{textAlign:"center",marginBottom:5}}>
-          <span style={{background:cur.c,borderRadius:6,padding:"3px 9px",fontWeight:800,color:"#fff",fontSize:8}}>DAY{cur.id} — {cur.date}({cur.dl})</span>
-          <div style={{fontSize:11,fontWeight:700,color:"#1a1a2e",marginTop:2}}>{cur.ti} {cur.th}</div>
+  return (
+    <div style={{
+      minHeight:"100vh",
+      background:"linear-gradient(180deg,#fffaf3 0%,#fef3ec 40%,#f0ece3 100%)",
+      paddingTop: pull,
+      transition: refreshing ? "padding-top .3s" : "none",
+    }}>
+      {/* pull-to-refresh indicator */}
+      {(pull > 0 || refreshing) && (
+        <div style={{
+          position:"absolute", top:Math.max(0,pull-50), left:0, right:0,
+          textAlign:"center", color:"#999", fontSize:"calc(12px * var(--fs))",
+          fontWeight:700, paddingTop:14,
+        }}>
+          {refreshing ? "🔄 " + T(lang, I18N.refreshing.th, I18N.refreshing.en)
+            : pull > 60 ? "↑ " + T(lang, I18N.releaseRefresh.th, I18N.releaseRefresh.en)
+            : "↓ " + T(lang, I18N.pullRefresh.th, I18N.pullRefresh.en)}
         </div>
-        <div style={{display:"flex",gap:5,marginBottom:6,flexWrap:"wrap"}}>
-          {cur.weather&&<div style={{flex:1,minWidth:130,background:"rgba(255,255,255,0.9)",borderRadius:9,padding:"7px 9px",border:"1px solid #e0f2fe"}}>
-            <div style={{fontSize:7,fontWeight:700,color:"#0ea5e9"}}>🌤️สภาพอากาศ</div>
-            <div style={{display:"flex",alignItems:"center",gap:5,marginTop:2}}>
-              <span style={{fontSize:20}}>{cur.weather.icon}</span>
-              <div><div style={{fontSize:12,fontWeight:800,color:"#1a1a2e"}}>{cur.weather.temp}</div><div style={{fontSize:8,color:"#666"}}>{cur.weather.desc}</div></div>
+      )}
+
+      {/* Top bar */}
+      <div data-comment-anchor="topbar" style={{
+        position:"sticky", top:0, zIndex:30,
+        background:"rgba(255,250,243,0.9)", backdropFilter:"blur(12px)",
+        padding:"14px 16px 10px",
+        borderBottom:"1px solid rgba(0,0,0,0.05)",
+      }}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div>
+            <div style={{
+              fontSize:"calc(26px * var(--fs))",fontWeight:700,
+              color:"#1a1a2e",lineHeight:1,
+              fontFamily:"'Comic Relief', system-ui, sans-serif",
+            }}>
+              Da Nang 2026
             </div>
-            <div style={{fontSize:7,marginTop:2,color:"#888"}}>🌧️ฝน:{cur.weather.rain} · UV:{cur.weather.uv}</div>
-          </div>}
-          {cur.outfit&&<div style={{flex:1,minWidth:130,background:"rgba(255,255,255,0.9)",borderRadius:9,padding:"7px 9px",border:`1px solid ${cur.c}18`}}>
-            <div style={{fontSize:7,fontWeight:700,color:cur.c}}>👗แนะนำแต่งตัว</div>
-            <div style={{fontSize:9,fontWeight:700,color:"#1a1a2e",marginTop:2}}>{cur.outfit.style}</div>
-            <div style={{fontSize:8,color:"#555",marginTop:1}}>{cur.outfit.desc}</div>
-            <div style={{fontSize:10,marginTop:2}}>{cur.outfit.colors}</div>
-            <div style={{fontSize:7,color:"#888",marginTop:1}}>💡{cur.outfit.tip}</div>
-          </div>}
-        </div>
-        <div style={{background:"rgba(255,255,255,0.85)",borderRadius:9,padding:"6px 9px",marginBottom:6,border:`1px solid ${cur.c}20`,display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
-          <div><span style={{fontSize:7,fontWeight:700,color:cur.c}}>⏰ตื่น</span><div style={{fontSize:13,fontWeight:800}}>{cur.wake}</div><div style={{fontSize:7,color:"#888"}}>{cur.wakeNote}</div></div>
-          <div><span style={{fontSize:7,fontWeight:700,color:cur.c}}>🚪ออก</span><div style={{fontSize:13,fontWeight:800}}>{cur.leave}</div></div>
-          <div style={{flex:1,minWidth:160}}><span style={{fontSize:7,fontWeight:700,color:cur.c}}>🚿ห้องน้ำ(1ห้อง·ผญ35น.ผช20น.)</span><div style={{fontSize:8,fontWeight:600,color:"#444"}}>{cur.bath}</div></div>
-        </div>
-        {cur.acts.map((a,i)=><Card key={a.pk||a.id||i} a={a} prev={i>0?cur.acts[i-1]:null} dayC={cur.c}
-          onSwap={nk=>swap(cur.id,i,nk)} onUp={()=>mv(cur.id,i,-1)} onDn={()=>mv(cur.id,i,1)} onRemove={()=>remove(cur.id,i)}
-          onTimeChange={nt=>changeTime(cur.id,i,nt)}/>)}
-        <div style={{textAlign:"center",marginTop:5}}>
-          <button onClick={()=>{setAddMenu(addMenu===cur.id?null:cur.id);setAddCat(null);}} style={{fontFamily:"'Outfit',sans-serif",fontSize:9,fontWeight:600,color:"#06d6a0",background:"#06d6a008",border:"1px solid #06d6a020",borderRadius:7,padding:"4px 12px",cursor:"pointer"}}>{addMenu===cur.id?"ปิด ▲":"+ เพิ่มกิจกรรม"}</button>
-        </div>
-        {addMenu===cur.id&&<div style={{marginTop:5,background:"rgba(255,255,255,0.92)",borderRadius:9,padding:7,border:"1px solid #06d6a015",animation:"fi .2s",maxHeight:280,overflowY:"auto"}}>
-          <div style={{display:"flex",gap:2,marginBottom:6,flexWrap:"wrap"}}>
-            {Object.entries(CATS).map(([k,v])=>{const cnt=Object.entries(P).filter(([pk,pv])=>pv.cat===k&&!cur.acts.some(a=>a.pk===pk)).length;return(
-              <button key={k} onClick={()=>setAddCat(addCat===k?null:k)} style={{fontSize:8,fontWeight:600,padding:"3px 7px",borderRadius:5,border:`1px solid ${addCat===k?v.c+"88":"#ddd"}`,background:addCat===k?v.c+"15":"#fafafa",color:addCat===k?v.c:"#999",cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{v.i}{v.l.replace(/^. /,"")} ({cnt})</button>
-            );})}
+            <div style={{fontSize:"calc(12px * var(--fs))",color:"#bbb",marginTop:2}}>°.🐚⋆🌺˖°🫧</div>
+            <div style={{fontSize:"calc(11px * var(--fs))",color:"#999",marginTop:2}}>
+              29 May – 1 Jun · <span style={{color:statusColor,fontWeight:700}}>● {T(lang,
+                syncStatus==="synced"?I18N.syncOn.th:syncStatus==="connecting"?I18N.syncing.th:I18N.offline.th,
+                syncStatus==="synced"?I18N.syncOn.en:syncStatus==="connecting"?I18N.syncing.en:I18N.offline.en
+              )}</span>
+            </div>
           </div>
-          {!addCat&&<div style={{fontSize:9,color:"#aaa",textAlign:"center",padding:8}}>👆 เลือกหมวดหมู่ก่อน</div>}
-          {addCat&&Object.entries(P).filter(([k,v])=>v.cat===addCat&&!cur.acts.some(a=>a.pk===k)).map(([k,v])=>(
-            <button key={k} onClick={()=>addAct(cur.id,k)} style={{display:"flex",alignItems:"center",gap:5,width:"100%",padding:"5px 7px",border:"1px solid #eee",borderRadius:7,background:"#fff",cursor:"pointer",fontFamily:"'Outfit',sans-serif",textAlign:"left",marginBottom:3}}>
-              <div style={{fontSize:16,flexShrink:0}}>{v.img||CATS[v.cat]?.i||"📌"}</div>
-              <div style={{flex:1}}><div style={{fontWeight:600,fontSize:10,color:"#1a1a2e"}}>{v.t} <span style={{fontSize:7,color:"#f59e0b"}}>{v.rat}</span></div><div style={{fontSize:8,color:"#666"}}>{v.d}</div><div style={{fontSize:7,color:"#999"}}>💰{v.bud} · ⏱️{DUR[k]||60}น.</div></div>
-              <span style={{fontSize:11,color:"#06d6a0"}}>➕</span>
-            </button>
-          ))}
-          {addCat&&Object.entries(P).filter(([k,v])=>v.cat===addCat&&!cur.acts.some(a=>a.pk===k)).length===0&&<div style={{fontSize:9,color:"#aaa",textAlign:"center",padding:6}}>หมวดนี้เพิ่มครบแล้ว ✓</div>}
-        </div>}
-      </div>}
-      <div style={{textAlign:"center",marginTop:16}}>
-        <div style={{fontSize:11,color:"#aaa",marginBottom:8}}>{syncStatus==="synced"?"🔄 ทุกคนแก้ไขพร้อมกัน real-time":"💾 Auto Save"}</div>
-        <div style={{display:"flex",gap:6,justifyContent:"center",flexWrap:"wrap"}}>
-          <button onClick={resetAll} style={{fontFamily:"'Outfit',sans-serif",fontSize:11,fontWeight:600,color:"#ef476f",background:"#ef476f08",border:"1.5px solid #ef476f25",borderRadius:8,padding:"6px 14px",cursor:"pointer"}}>🔄 รีเซ็ต</button>
+          <button onClick={switchLang} style={{
+            padding:"8px 14px", borderRadius:14,
+            background:"#fff", border:"2px solid #f0ece3",
+            fontFamily:"inherit", fontWeight:700,
+            fontSize:"calc(13px * var(--fs))", color:"#666",
+            cursor:"pointer", minWidth:64,
+          }}>{lang==="th"?"🇹🇭 TH":"🇬🇧 EN"}</button>
         </div>
-        <div style={{fontSize:10,color:"#ccc",marginTop:10}}>°.🐚⋆🌺˖°🫧<div style={{fontSize:16,marginTop:2}}>🌺🍋🌊</div></div>
       </div>
+
+      {/* Screens */}
+      <div style={{paddingTop:14}}>
+        {tab==="trip" && <TripScreen days={days} ad={ad} setAd={setAd} lang={lang}
+          onSwap={onSwap} onMove={onMove} onRemove={onRemove} onAdd={onAdd} customAdd={onCustomAdd} onTimeChange={onTimeChange}/>}
+        {tab==="map" && <MapScreen days={days} ad={ad} setAd={setAd} lang={lang}/>}
+        {tab==="budget" && <BudgetScreen days={days} lang={lang}/>}
+        {tab==="pack" && <PackScreen days={days} lang={lang} packed={packed} setPacked={setPackedState}/>}
+      </div>
+
+      {/* Bottom nav */}
+      <nav data-comment-anchor="bottom-nav" style={{
+        position:"fixed", bottom:0, left:0, right:0, zIndex:40,
+        background:"rgba(255,255,255,0.96)", backdropFilter:"blur(16px)",
+        borderTop:"1px solid rgba(0,0,0,0.06)",
+        padding:"8px 0 calc(env(safe-area-inset-bottom, 0px) + 10px)",
+        display:"flex",
+      }}>
+        {[
+          {k:"trip",i:"📅",l:I18N.trip},
+          {k:"map",i:"🗺️",l:I18N.map},
+          {k:"budget",i:"💰",l:I18N.budget},
+          {k:"pack",i:"🎒",l:I18N.pack},
+        ].map(item => {
+          const active = tab===item.k;
+          return (
+            <button key={item.k} onClick={()=>setTab(item.k)} style={{
+              flex:1, border:"none", background:"transparent",
+              padding:"6px 0 4px", cursor:"pointer", fontFamily:"inherit",
+              color: active ? "#118AB2" : "#999",
+              transition:"all .2s",
+            }}>
+              <div style={{
+                fontSize:"calc(22px * var(--fs))",lineHeight:1,
+                transform: active?"scale(1.1)":"scale(1)",
+                transition:"transform .2s",
+              }}>{item.i}</div>
+              <div style={{
+                fontSize:"calc(11px * var(--fs))",fontWeight:700,marginTop:3,
+              }}>{item.l[lang]||item.l.en}</div>
+              {active && <div style={{
+                width:24,height:3,background:"#118AB2",borderRadius:3,margin:"3px auto 0",
+              }}/>}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Tweaks panel */}
+      {window.TweaksPanel && window.TweakSection && window.TweakSlider && window.TweakRadio && (
+        <window.TweaksPanel title="Tweaks">
+          <window.TweakSection title="Display">
+            <window.TweakSlider label="Font size" value={t.fontScale||1} min={0.85} max={1.4} step={0.05}
+              onChange={v=>setTweak('fontScale', v)}/>
+            <window.TweakRadio label="Language" value={t.lang||lang}
+              options={[{value:"th",label:"🇹🇭 TH"},{value:"en",label:"🇬🇧 EN"}]}
+              onChange={v=>{setTweak('lang',v); setLang(v);}}/>
+          </window.TweakSection>
+        </window.TweaksPanel>
+      )}
     </div>
-  </div>);
+  );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(AppFirebase));
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
+</head>
+<body>
+<div id="err" style="display:none;position:fixed;top:0;left:0;right:0;padding:16px;background:red;color:white;font-size:13px;z-index:99999;white-space:pre-wrap;max-height:40vh;overflow:auto"></div>
+<div id="root"></div>
+<script>window.onerror=function(m){document.getElementById("err").style.display="block";document.getElementById("err").textContent+=m+"\n";}</script>
 </body>
 </html>
